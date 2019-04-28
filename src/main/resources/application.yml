@@ -1,0 +1,37 @@
+spring:
+  resources:
+    chain:
+      cache: false # 开发时使用，resource文件夹下的资源不进行缓存处理，即每次都需要去加载
+  datasource:
+    dynamic:
+      primary: hive #设置默认的数据源或者数据源组,默认值即为master
+      strict: false #设置严格模式,默认false不启动. 启动后再为匹配到指定数据源时候回抛出异常,不启动会使用默认数据源.
+      datasource:
+        hive:
+          username: hadoop # 注意用户名，使用hive用户没操作hdfs的权限
+          password: hadoop
+          driver-class-name: org.apache.hive.jdbc.HiveDriver
+          url: jdbc:hive2://hadoop04:10000/test
+        mysql_1:
+          username: root
+          password: root
+          driver-class-name: com.mysql.jdbc.Driver
+          url: jdbc:mysql://hadoop04:3306/sudu?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT&useSSL=false
+        mysql_2:
+          username: root
+          password: tse@9527
+          driver-class-name: com.mysql.jdbc.Driver
+          url: jdbc:mysql://localhost:3306/sudu?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT&useSSL=false
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      minimum-idle: 10
+      maximum-pool-size: 15
+      auto-commit: true
+      idle-timeout: 30000
+      pool-name: ExpendHikariCP
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
+
+server:
+  port: 10024
