@@ -35,3 +35,13 @@ spring:
 
 server:
   port: 10024
+
+logging:
+  level:
+    com.isacc.datax: debug
+  file: logs/springboot_mybatis.log
+
+mybatis:
+  mapperLocations: classpath*:/mapper/*.xml
+  configuration:
+    mapUnderscoreToCamelCase: true

@@ -23,6 +23,7 @@
         <mysql.version>5.1.47</mysql.version>
         <oracle.version>12.1.0.2</oracle.version>
         <sqlserver.version>4.0</sqlserver.version>
+        <mybatis.spring.starter.version>2.0.1</mybatis.spring.starter.version>
     </properties>
 
     <dependencies>
@@ -140,6 +141,11 @@
             <groupId>com.baomidou</groupId>
             <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
             <version>${dynamic.datasource.boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
+            <version>${mybatis.spring.starter.version}</version>
         </dependency>
 
     </dependencies>

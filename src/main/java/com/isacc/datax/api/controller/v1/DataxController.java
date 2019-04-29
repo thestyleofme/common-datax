@@ -1,6 +1,9 @@
 package com.isacc.datax.api.controller.v1;
 
+import com.isacc.datax.api.dto.ApiResult;
 import com.isacc.datax.api.dto.Mysql2HiveDTO;
+import com.isacc.datax.app.service.DataxService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -14,9 +17,16 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/datax")
 public class DataxController {
 
-	@PostMapping
-	public void mysqlImport(@RequestBody Mysql2HiveDTO mysql2HiveDTO) {
-		System.out.println();
+	private final DataxService dataxService;
+
+	@Autowired
+	public DataxController(DataxService dataxService) {
+		this.dataxService = dataxService;
+	}
+
+	@PostMapping("/mysql-hive")
+	public ApiResult<Object> mysql2Hive(@RequestBody Mysql2HiveDTO mysql2HiveDTO) {
+		return dataxService.mysql2Hive(mysql2HiveDTO);
 	}
 
 }
