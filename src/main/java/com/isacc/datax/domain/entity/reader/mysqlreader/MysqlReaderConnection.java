@@ -1,7 +1,6 @@
-package com.isacc.datax.api.dto.mysqlreader;
+package com.isacc.datax.domain.entity.reader.mysqlreader;
 
 import java.util.List;
-
 import javax.validation.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -12,7 +11,7 @@ import lombok.*;
  * DataX Mysql插件的connection封装
  * </p>
  *
- * @author lei.xie03@hand-china.com 2019/04/28 10:34
+ * @author isacc 2019/04/28 10:34
  */
 @Builder
 @Data

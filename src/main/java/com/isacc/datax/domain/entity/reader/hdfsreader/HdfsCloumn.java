@@ -1,4 +1,4 @@
-package com.isacc.datax.api.dto.hdfsreader;
+package com.isacc.datax.domain.entity.reader.hdfsreader;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -9,7 +9,7 @@ import lombok.*;
  * 指定Column信息，type必须填写，index/value必须选择其一
  * </p>
  *
- * @author lei.xie03@hand-china.com 2019/04/28 15:05
+ * @author isacc 2019/04/28 15:05
  */
 @Builder
 @Data
@@ -31,4 +31,8 @@ public class HdfsCloumn {
 	 * value指定当前类型为常量，不从源头文件读取数据，而是根据value值自动生成对应的列
 	 */
 	private String value;
+	/**
+	 * 列名
+	 */
+	private String name;
 }

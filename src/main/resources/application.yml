@@ -16,12 +16,12 @@ spring:
           username: root
           password: root
           driver-class-name: com.mysql.jdbc.Driver
-          url: jdbc:mysql://hadoop04:3306/sudu?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT&useSSL=false
+          url: jdbc:mysql://hadoop04:3306/sudu?useUnicode=true&characterEncoding=utf-8&useSSL=false
         mysql_2:
           username: root
           password: tse@9527
           driver-class-name: com.mysql.jdbc.Driver
-          url: jdbc:mysql://localhost:3306/sudu?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT&useSSL=false
+          url: jdbc:mysql://localhost:3306/sudu?useUnicode=true&characterEncoding=utf-8&useSSL=false
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
       minimum-idle: 10

@@ -1,11 +1,11 @@
-package com.isacc.datax.api.dto.mysqlwriter;
+package com.isacc.datax.domain.entity.writer.mysqlwriter;
 
 /**
  * <p>
  * MysqlWriter Mode
  * </p>
  *
- * @author lei.xie03@hand-china.com 2019/04/28 14:25
+ * @author isacc 2019/04/28 14:25
  */
 public enum MysqlWriterModeEnum {
 	/**

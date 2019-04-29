@@ -1,7 +1,7 @@
 package com.isacc.datax.app.service;
 
 import com.isacc.datax.api.dto.ApiResult;
-import com.isacc.datax.api.dto.hive.HiveInfoDTO;
+import com.isacc.datax.api.dto.HiveInfoDTO;
 
 /**
  * <p>

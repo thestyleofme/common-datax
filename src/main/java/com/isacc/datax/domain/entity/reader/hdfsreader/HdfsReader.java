@@ -1,4 +1,4 @@
-package com.isacc.datax.api.dto.hdfsreader;
+package com.isacc.datax.domain.entity.reader.hdfsreader;
 
 import java.util.List;
 import java.util.Map;
@@ -7,6 +7,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.isacc.datax.domain.entity.reader.hdfsreader.HdfsCloumn;
 import lombok.*;
 
 /**
@@ -14,7 +15,7 @@ import lombok.*;
  * hdfsreader插件的参数封装
  * </p>
  *
- * @author lei.xie03@hand-china.com 2019/04/28 14:43
+ * @author isacc 2019/04/28 14:43
  */
 @Builder
 @Data
@@ -22,7 +23,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class HdfsReaderDTO {
+public class HdfsReader {
 
 	/**
 	 * 要读取的文件路径，如果要读取多个文件，可以使用正则表达式"*"，只支持"*"和"?"作为文件通配符

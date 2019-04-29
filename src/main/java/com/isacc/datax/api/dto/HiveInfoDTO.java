@@ -1,8 +1,9 @@
-package com.isacc.datax.api.dto.hive;
+package com.isacc.datax.api.dto;
 
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.isacc.datax.domain.entity.hive.HiveTableColumn;
 import lombok.*;
 
 /**

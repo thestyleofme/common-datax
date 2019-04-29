@@ -1,4 +1,4 @@
-package com.isacc.datax.api.dto.mysqlwriter;
+package com.isacc.datax.domain.entity.writer.mysqlwriter;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -11,7 +11,7 @@ import lombok.*;
  * DataX Mysql插件的connection封装
  * </p>
  *
- * @author lei.xie03@hand-china.com 2019/04/28 10:34
+ * @author isacc 2019/04/28 10:34
  */
 @Builder
 @Data

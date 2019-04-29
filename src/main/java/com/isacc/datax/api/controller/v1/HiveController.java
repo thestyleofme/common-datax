@@ -3,7 +3,7 @@ package com.isacc.datax.api.controller.v1;
 import javax.validation.constraints.NotNull;
 
 import com.isacc.datax.api.dto.ApiResult;
-import com.isacc.datax.api.dto.hive.HiveInfoDTO;
+import com.isacc.datax.api.dto.HiveInfoDTO;
 import com.isacc.datax.app.service.HiveService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

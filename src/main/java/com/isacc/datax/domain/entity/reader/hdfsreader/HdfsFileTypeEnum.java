@@ -1,4 +1,4 @@
-package com.isacc.datax.api.dto.hdfsreader;
+package com.isacc.datax.domain.entity.reader.hdfsreader;
 
 
 /**
@@ -6,7 +6,7 @@ package com.isacc.datax.api.dto.hdfsreader;
  * hdfs file type
  * </p>
  *
- * @author lei.xie03@hand-china.com 2019/04/28 14:59
+ * @author isacc 2019/04/28 14:59
  */
 public enum HdfsFileTypeEnum {
 	/**
@@ -38,4 +38,9 @@ public enum HdfsFileTypeEnum {
 	HdfsFileTypeEnum(String fileType) {
 		this.fileType = fileType;
 	}
+
+	public String getFileType() {
+		return fileType;
+	}
+
 }

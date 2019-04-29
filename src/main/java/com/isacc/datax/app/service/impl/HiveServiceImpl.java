@@ -3,8 +3,8 @@ package com.isacc.datax.app.service.impl;
 import java.util.List;
 
 import com.isacc.datax.api.dto.ApiResult;
-import com.isacc.datax.api.dto.hive.HiveInfoDTO;
-import com.isacc.datax.api.dto.hive.HiveTableColumn;
+import com.isacc.datax.api.dto.HiveInfoDTO;
+import com.isacc.datax.domain.entity.hive.HiveTableColumn;
 import com.isacc.datax.app.service.HiveService;
 import com.isacc.datax.infra.constant.Constants;
 import lombok.extern.slf4j.Slf4j;
