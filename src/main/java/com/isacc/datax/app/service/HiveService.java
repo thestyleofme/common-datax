@@ -26,7 +26,7 @@ public interface HiveService {
 	 *
 	 * @param databaseName 数据库名称
 	 * @return com.isacc.datax.api.dto.ApiResult<java.lang.String>
-	 * @author HP_USER 2019-04-29 9:58
+	 * @author isacc 2019-04-29 9:58
 	 */
 	ApiResult<Object> createDatabase(String databaseName);
 
@@ -44,7 +44,7 @@ public interface HiveService {
 	 *
 	 * @param databaseName 数据库名称
 	 * @return com.isacc.datax.api.dto.ApiResult<java.lang.String>
-	 * @author HP_USER 2019-04-29 9:58
+	 * @author isacc 2019-04-29 9:58
 	 */
 	ApiResult<Object> deleteDatabase(String databaseName);
 }

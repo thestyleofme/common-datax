@@ -5,7 +5,7 @@ package com.isacc.datax.domain.entity.writer.hdfswiter;
  * Hdfs压缩类型
  * </p>
  *
- * @author HP_USER 2019/04/29 16:10
+ * @author isacc 2019/04/29 16:10
  */
 public enum HdfsCompressEnum {
 	/**
