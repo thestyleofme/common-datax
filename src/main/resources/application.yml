@@ -11,7 +11,7 @@ spring:
           username: hadoop # 注意用户名，使用hive用户没操作hdfs的权限
           password: hadoop
           driver-class-name: org.apache.hive.jdbc.HiveDriver
-          url: jdbc:hive2://hadoop04:10000/test
+          url: jdbc:hive2://hadoop04:10000/default
         mysql_1:
           username: root
           password: root

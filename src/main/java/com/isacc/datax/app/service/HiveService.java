@@ -19,5 +19,32 @@ public interface HiveService {
 	 * @return com.isacc.datax.api.dto.ApiResult<com.isacc.datax.api.dto.hive.HiveInfoDTO>
 	 * @author isacc 2019-04-28 19:44
 	 */
-	ApiResult<String> createTable(HiveInfoDTO hiveInfoDTO);
+	ApiResult<Object> createTable(HiveInfoDTO hiveInfoDTO);
+
+	/**
+	 * 新建Hive数据库
+	 *
+	 * @param databaseName 数据库名称
+	 * @return com.isacc.datax.api.dto.ApiResult<java.lang.String>
+	 * @author HP_USER 2019-04-29 9:58
+	 */
+	ApiResult<Object> createDatabase(String databaseName);
+
+	/**
+	 * 删除Hive表
+	 *
+	 * @param hiveInfoDTO HiveInfoDTO
+	 * @return com.isacc.datax.api.dto.ApiResult<java.lang.String>
+	 * @author isacc 2019-04-29 11:28
+	 */
+	ApiResult<Object> deleteTable(HiveInfoDTO hiveInfoDTO);
+
+	/**
+	 * 删除Hive数据库
+	 *
+	 * @param databaseName 数据库名称
+	 * @return com.isacc.datax.api.dto.ApiResult<java.lang.String>
+	 * @author HP_USER 2019-04-29 9:58
+	 */
+	ApiResult<Object> deleteDatabase(String databaseName);
 }

@@ -1,13 +1,12 @@
 package com.isacc.datax.api.controller.v1;
 
+import javax.validation.constraints.NotNull;
+
 import com.isacc.datax.api.dto.ApiResult;
 import com.isacc.datax.api.dto.hive.HiveInfoDTO;
 import com.isacc.datax.app.service.HiveService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * <p>
@@ -29,7 +28,24 @@ public class HiveController {
 
 
 	@PostMapping("/table")
-	public ApiResult<String> createTable(@RequestBody HiveInfoDTO hiveInfoDTO) {
+	public ApiResult<Object> createTable(@RequestBody HiveInfoDTO hiveInfoDTO) {
 		return hiveService.createTable(hiveInfoDTO);
 	}
+
+	@DeleteMapping("/table")
+	public ApiResult<Object> deleteTable(@RequestBody HiveInfoDTO hiveInfoDTO) {
+		return hiveService.deleteTable(hiveInfoDTO);
+	}
+
+	@GetMapping("/database")
+	public ApiResult<Object> createTable(@NotNull String databaseName) {
+		return hiveService.createDatabase(databaseName);
+	}
+
+	@DeleteMapping("/database")
+	public ApiResult<Object> deleteDatabase(@NotNull String databaseName) {
+		return hiveService.deleteDatabase(databaseName);
+	}
+
+
 }

@@ -2,6 +2,7 @@ package com.isacc.datax.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
+import org.apache.http.HttpStatus;
 
 /**
  * <p>
@@ -17,6 +18,9 @@ import lombok.*;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResult<T> {
+
+	public static final ApiResult<Object> SUCCESS = new ApiResult<>(HttpStatus.SC_OK, true);
+	public static final ApiResult<Object> FAILURE = new ApiResult<>(HttpStatus.SC_INTERNAL_SERVER_ERROR, false);
 
 	/**
 	 * 返回给前台的状态码
@@ -35,4 +39,8 @@ public class ApiResult<T> {
 	 */
 	private T content;
 
+	private ApiResult(Integer code, Boolean result) {
+		this.code = code;
+		this.result = result;
+	}
 }

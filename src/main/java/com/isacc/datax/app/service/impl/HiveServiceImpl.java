@@ -8,7 +8,6 @@ import com.isacc.datax.api.dto.hive.HiveTableColumn;
 import com.isacc.datax.app.service.HiveService;
 import com.isacc.datax.infra.constant.Constants;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.httpclient.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -34,8 +33,7 @@ public class HiveServiceImpl implements HiveService {
 	}
 
 	@Override
-	public ApiResult<String> createTable(HiveInfoDTO hiveInfoDTO) {
-		ApiResult<String> result = new ApiResult<>();
+	public ApiResult<Object> createTable(HiveInfoDTO hiveInfoDTO) {
 		List<HiveTableColumn> columns = hiveInfoDTO.getColumns();
 		final String columnSql;
 		StringBuilder sb = new StringBuilder();
@@ -49,16 +47,60 @@ public class HiveServiceImpl implements HiveService {
 		log.info("创表语句：{}", sql);
 		try {
 			jdbcTemplate.execute(sql);
-			result.setResult(true);
-			result.setCode(HttpStatus.SC_OK);
-			result.setMessage(String.format("成功创建表%s!", hiveInfoDTO.getTableName()));
+			ApiResult.SUCCESS.setMessage(String.format("成功创建表%s!", hiveInfoDTO.getTableName()));
+			return ApiResult.SUCCESS;
 		} catch (DataAccessException e) {
-			log.info("execute create table error", e);
-			result.setResult(false);
-			result.setCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-			result.setMessage(String.format("创建表%ss失败!", hiveInfoDTO.getTableName()));
-			result.setContent(e.getMessage());
+			log.error("execute create table error {}", e);
+			ApiResult.FAILURE.setMessage(String.format("创建表%ss失败!", hiveInfoDTO.getTableName()));
+			ApiResult.FAILURE.setContent(e.getMessage());
+			return ApiResult.FAILURE;
 		}
-		return result;
 	}
+
+	@Override
+	public ApiResult<Object> createDatabase(String databaseName) {
+		final String sql = String.format("CREATE DATABASE IF NOT EXISTS %s", databaseName);
+		try {
+			jdbcTemplate.execute(sql);
+			ApiResult.SUCCESS.setMessage(String.format("成功创建数据库%s!", databaseName));
+			return ApiResult.SUCCESS;
+		} catch (Exception e) {
+			log.error("execute create database error {}", e);
+			ApiResult.FAILURE.setMessage(String.format("成功创建数据库%s!", databaseName));
+			ApiResult.FAILURE.setContent(e.getMessage());
+			return ApiResult.FAILURE;
+		}
+	}
+
+	@Override
+	public ApiResult<Object> deleteTable(HiveInfoDTO hiveInfoDTO) {
+		final String sql = String.format("DROP TABLE IF EXISTS %s%s%s", hiveInfoDTO.getDatabaseName(), Constants.Symbol.POINT, hiveInfoDTO.getTableName());
+		try {
+			jdbcTemplate.execute(sql);
+			ApiResult.SUCCESS.setMessage(String.format("成功删除表%s%s%s!", hiveInfoDTO.getDatabaseName(), Constants.Symbol.POINT, hiveInfoDTO.getTableName()));
+			return ApiResult.SUCCESS;
+		} catch (Exception e) {
+			log.error("execute delete table error {}", e);
+			ApiResult.FAILURE.setMessage(String.format("删除表%s%s%s失败!", hiveInfoDTO.getDatabaseName(), Constants.Symbol.POINT, hiveInfoDTO.getTableName()));
+			ApiResult.FAILURE.setContent(e.getMessage());
+			return ApiResult.FAILURE;
+		}
+	}
+
+	@Override
+	public ApiResult<Object> deleteDatabase(String databaseName) {
+		final String sql = String.format("DROP DATABASE IF EXISTS %s", databaseName);
+		try {
+			jdbcTemplate.execute(sql);
+			ApiResult.SUCCESS.setMessage(String.format("成功删除数据库%s!", databaseName));
+			return ApiResult.SUCCESS;
+		} catch (Exception e) {
+			log.error("execute delete database error {}", e);
+			ApiResult.FAILURE.setMessage(String.format("删除数据库%s失败!", databaseName));
+			ApiResult.FAILURE.setContent(e.getMessage());
+			return ApiResult.FAILURE;
+		}
+	}
+
+
 }
