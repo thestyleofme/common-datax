@@ -4,12 +4,11 @@ import java.util.List;
 
 import com.isacc.datax.api.dto.ApiResult;
 import com.isacc.datax.api.dto.HiveInfoDTO;
-import com.isacc.datax.domain.entity.hive.HiveTableColumn;
 import com.isacc.datax.app.service.HiveService;
+import com.isacc.datax.domain.entity.reader.hdfsreader.HdfsColumn;
 import com.isacc.datax.infra.constant.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +33,7 @@ public class HiveServiceImpl implements HiveService {
 
 	@Override
 	public ApiResult<Object> createTable(HiveInfoDTO hiveInfoDTO) {
-		List<HiveTableColumn> columns = hiveInfoDTO.getColumns();
+		List<HdfsColumn> columns = hiveInfoDTO.getColumns();
 		final String columnSql;
 		StringBuilder sb = new StringBuilder();
 		columns.forEach(column -> sb.append(column.getName()).append(Constants.Symbol.SPACE).append(column.getType()).append(Constants.Symbol.COMMA));
@@ -49,8 +48,8 @@ public class HiveServiceImpl implements HiveService {
 			jdbcTemplate.execute(sql);
 			ApiResult.SUCCESS.setMessage(String.format("成功创建表%s!", hiveInfoDTO.getTableName()));
 			return ApiResult.SUCCESS;
-		} catch (DataAccessException e) {
-			log.error("execute create table error {}", e);
+		} catch (Exception e) {
+			log.error("execute create table error: ", e);
 			ApiResult.FAILURE.setMessage(String.format("创建表%ss失败!", hiveInfoDTO.getTableName()));
 			ApiResult.FAILURE.setContent(e.getMessage());
 			return ApiResult.FAILURE;

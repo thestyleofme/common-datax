@@ -17,7 +17,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class HdfsCloumn {
+public class HdfsColumn {
 
 	/**
 	 * index指定当前列来自于文本第几列(以0开始)

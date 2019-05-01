@@ -7,7 +7,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.isacc.datax.domain.entity.reader.hdfsreader.HdfsCloumn;
 import lombok.*;
 
 /**
@@ -44,7 +43,7 @@ public class HdfsReader {
 	 * 读取字段列表
 	 */
 	@NotEmpty
-	private List<HdfsCloumn> column;
+	private List<HdfsColumn> column;
 	/**
 	 * 读取的字段分隔符，默认为','
 	 * HdfsReader在读取orcfile时，用户无需指定字段分割符

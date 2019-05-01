@@ -12,23 +12,23 @@ public enum HdfsFileTypeEnum {
 	/**
 	 * textfile文件格式
 	 */
-	TEXT("text"),
+	TEXT("TEXTFILE"),
 	/**
 	 * orcfile文件格式
 	 */
-	ORC("orc"),
+	ORC("ORC"),
 	/**
 	 * rcfile文件格式
 	 */
-	RC("rc"),
+	RC("RCFILE"),
 	/**
 	 * sequence file文件格式
 	 */
-	SEQ("seq"),
+	SEQ("SEQUENCEFILE"),
 	/**
 	 * 普通hdfs文件格式（逻辑二维表）
 	 */
-	CSV("csv");
+	CSV("CSV");
 
 	/**
 	 * hdfs file type

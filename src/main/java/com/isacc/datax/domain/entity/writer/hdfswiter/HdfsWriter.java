@@ -6,7 +6,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.isacc.datax.domain.entity.reader.hdfsreader.HdfsCloumn;
+import com.isacc.datax.domain.entity.reader.hdfsreader.HdfsColumn;
 import com.isacc.datax.domain.entity.writer.BaseWriter;
 import lombok.*;
 
@@ -36,7 +36,7 @@ public class HdfsWriter extends BaseWriter {
 	@NotBlank
 	private String defaultFS;
 	/**
-	 * 文件的类型，目前只支持用户配置为"text"、"orc"、"rc"、"seq"、"csv"
+	 * 文件的类型，目前只支持用户配置为"text"、"orc"
 	 */
 	@NotBlank
 	private String fileType;
@@ -49,7 +49,7 @@ public class HdfsWriter extends BaseWriter {
 	 * 写入数据的字段
 	 */
 	@NotEmpty
-	private List<HdfsCloumn> column;
+	private List<HdfsColumn> column;
 	/**
 	 * hdfswriter写入前数据清理处理模式：
 	 */

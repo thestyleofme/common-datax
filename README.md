@@ -3,6 +3,7 @@
 
 ### todo:
 - 主要是hive，mysql之间的导数，还有csv导入等
+- 优化，使用Redis缓存mysql/hive的所有库表
 - swagger,mybatis
 - 创表记录导数的历史
 - 配置文件属性加密

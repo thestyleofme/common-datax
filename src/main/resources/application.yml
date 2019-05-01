@@ -12,6 +12,11 @@ spring:
           password: hadoop
           driver-class-name: org.apache.hive.jdbc.HiveDriver
           url: jdbc:hive2://hadoop04:10000/default
+        hivemetadata:
+          username: root
+          password: root
+          driver-class-name: com.mysql.jdbc.Driver
+          url: jdbc:mysql://hadoop04:3306/hive?useUnicode=true&characterEncoding=utf-8&useSSL=false
         mysql_1:
           username: root
           password: root
