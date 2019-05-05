@@ -25,6 +25,7 @@
         <sqlserver.version>4.0</sqlserver.version>
         <mybatis.spring.starter.version>2.0.1</mybatis.spring.starter.version>
         <commons.io.version>2.6</commons.io.version>
+        <commons.fileupload.version>1.4</commons.fileupload.version>
     </properties>
 
     <dependencies>
@@ -168,6 +169,12 @@
             <artifactId>commons-io</artifactId>
             <version>${commons.io.version}</version>
         </dependency>
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>${commons.fileupload.version}</version>
+        </dependency>
+
 
 
     </dependencies>

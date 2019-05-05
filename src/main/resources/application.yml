@@ -54,9 +54,10 @@ mybatis:
 datax:
   basePackagePath: /templates
   host: datax01
+  port: 22
   username: root
   password: tse@9527
-  uploadDicPath: /root/datax/
+  uploadDicPath: /home/hadoop/datax
   localDicPath: src/main/resources/datax/
   mysql2hive:
     whereTemplate: mysql2hive_where.ftl

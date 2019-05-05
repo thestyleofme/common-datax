@@ -19,6 +19,9 @@ import org.apache.http.HttpStatus;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResult<T> {
 
+	/**
+	 * 注意 这两个是共用的
+	 */
 	public static final ApiResult<Object> SUCCESS = new ApiResult<>(HttpStatus.SC_OK, true);
 	public static final ApiResult<Object> FAILURE = new ApiResult<>(HttpStatus.SC_INTERNAL_SERVER_ERROR, false);
 
@@ -42,5 +45,12 @@ public class ApiResult<T> {
 	private ApiResult(Integer code, Boolean result) {
 		this.code = code;
 		this.result = result;
+	}
+
+	public static void init(){
+		ApiResult.SUCCESS.setContent(null);
+		ApiResult.SUCCESS.setMessage(null);
+		ApiResult.FAILURE.setContent(null);
+		ApiResult.FAILURE.setMessage(null);
 	}
 }

@@ -1,6 +1,9 @@
 package com.isacc.datax.app.service.impl;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -18,12 +21,19 @@ import com.isacc.datax.infra.config.DataxProperties;
 import com.isacc.datax.infra.constant.Constants;
 import com.isacc.datax.infra.mapper.MysqlSimpleMapper;
 import com.isacc.datax.infra.util.FreemarkerUtils;
+import com.isacc.datax.infra.util.SftpUtil;
+import com.jcraft.jsch.JSchException;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.output.FileWriterWithEncoding;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 /**
  * <p>
@@ -63,12 +73,98 @@ public class DataxServiceImpl implements DataxService {
 			return this.checkWriteMode(mysql2HiveDTO);
 		}
 		// 创建datax job json文件
-		if (!this.createJsonFile(mysql2HiveDTO).getResult()) {
+		if (this.createJsonFile(mysql2HiveDTO).getResult()) {
+			final ApiResult<Object> jsonResult = this.createJsonFile(mysql2HiveDTO);
+			final File jsonFile = (File) jsonResult.getContent();
+			// file转为MultipartFile
+			if (this.file2MultipartFile(jsonFile).getResult()) {
+				final MultipartFile multipartFile = (MultipartFile) file2MultipartFile(jsonFile).getContent();
+				// 上传到datax服务器
+				if (this.uploadFile(multipartFile, dataxProperties).getResult()) {
+					// 远程执行python进行导数
+					// 防止序列化失败，先init下
+					ApiResult.init();
+					return ApiResult.SUCCESS;
+				} else {
+					return this.uploadFile(multipartFile, dataxProperties);
+				}
+			} else {
+				return this.file2MultipartFile(jsonFile);
+			}
+		} else {
 			return this.createJsonFile(mysql2HiveDTO);
 		}
-		// 上传到datax服务器
-		// 远程执行python进行导数
+	}
+
+	/**
+	 * file转为MultipartFile
+	 *
+	 * @param jsonFile File
+	 * @return com.isacc.datax.api.dto.ApiResult<java.lang.Object>
+	 * @author isacc 2019-05-05 20:44
+	 */
+	private ApiResult<Object> file2MultipartFile(File jsonFile) {
+		FileItemFactory factory = new DiskFileItemFactory(16, null);
+		FileItem fileItem = factory.createItem(jsonFile.getName(), "text/html", true, jsonFile.getName());
+		int bytesRead;
+		int bytes = 8 * 1024;
+		byte[] buffer = new byte[bytes];
+		try (FileInputStream fis = new FileInputStream(jsonFile);
+			 OutputStream os = fileItem.getOutputStream()) {
+			while ((bytesRead = fis.read(buffer, 0, bytes)) != -1) {
+				os.write(buffer, 0, bytesRead);
+			}
+			MultipartFile multipartFile = new CommonsMultipartFile(fileItem);
+			ApiResult.SUCCESS.setContent(multipartFile);
+			return ApiResult.SUCCESS;
+		} catch (IOException e) {
+			log.error("upload json file error,", e);
+			ApiResult.FAILURE.setResult(false);
+			ApiResult.FAILURE.setMessage(e.getMessage());
+			return ApiResult.FAILURE;
+		}
+	}
+
+	/**
+	 * 上传文件到datax服务器
+	 *
+	 * @param file            上传的文件
+	 * @param dataxProperties dataxProperties
+	 * @return com.isacc.datax.api.dto.ApiResult<java.lang.Object>
+	 */
+	private ApiResult<Object> uploadFile(MultipartFile file, DataxProperties dataxProperties) {
+		if (file.isEmpty()) {
+			ApiResult.FAILURE.setResult(false);
+			ApiResult.FAILURE.setMessage("the select file is empty!");
+			return ApiResult.FAILURE;
+		}
+		String fileName = file.getOriginalFilename();
+		try (SftpUtil util = new SftpUtil()) {
+			this.connectServer(dataxProperties, util);
+			util.uploadFile(dataxProperties.getUploadDicPath() + '/' + fileName, file.getInputStream());
+		} catch (Exception e) {
+			log.error("upload json file error,", e);
+			ApiResult.FAILURE.setResult(false);
+			ApiResult.FAILURE.setMessage("upload file error!");
+			ApiResult.FAILURE.setContent(e.getMessage());
+			return ApiResult.FAILURE;
+		}
 		return ApiResult.SUCCESS;
+	}
+
+	/**
+	 * 连接到datax服务器
+	 *
+	 * @param dataxProperties DataxProperties
+	 * @param util            SftpUtil
+	 * @author isacc 2019-05-05 20:02
+	 */
+	private void connectServer(DataxProperties dataxProperties, SftpUtil util) throws JSchException {
+		String userName = dataxProperties.getUsername();
+		String ip = dataxProperties.getHost();
+		int port = Integer.parseInt(dataxProperties.getPort());
+		String password = dataxProperties.getPassword();
+		util.connectServer(ip, port, userName, password);
 	}
 
 	/**
@@ -96,13 +192,14 @@ public class DataxServiceImpl implements DataxService {
 			FileWriterWithEncoding writer = new FileWriterWithEncoding(file, "UTF-8");
 			template.process(root, writer);
 			writer.close();
+			ApiResult.SUCCESS.setContent(file);
+			return ApiResult.SUCCESS;
 		} catch (Exception e) {
 			log.error("create json file failure!", e);
 			ApiResult.FAILURE.setMessage("create json file failure!");
 			ApiResult.FAILURE.setContent(e.getMessage());
 			return ApiResult.FAILURE;
 		}
-		return ApiResult.SUCCESS;
 	}
 
 	/**

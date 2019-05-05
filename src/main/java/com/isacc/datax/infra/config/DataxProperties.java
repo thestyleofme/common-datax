@@ -24,6 +24,10 @@ public class DataxProperties {
 	 */
 	private String host;
 	/**
+	 * datax server port
+	 */
+	private String port;
+	/**
 	 * datax server username
 	 */
 	private String username;
