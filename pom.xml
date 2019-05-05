@@ -24,6 +24,7 @@
         <oracle.version>12.1.0.2</oracle.version>
         <sqlserver.version>4.0</sqlserver.version>
         <mybatis.spring.starter.version>2.0.1</mybatis.spring.starter.version>
+        <commons.io.version>2.6</commons.io.version>
     </properties>
 
     <dependencies>
@@ -31,10 +32,20 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-to-slf4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-freemarker</artifactId>
         </dependency>
 
         <!--hadoop-->
@@ -147,6 +158,12 @@
             <artifactId>mybatis-spring-boot-starter</artifactId>
             <version>${mybatis.spring.starter.version}</version>
         </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons.io.version}</version>
+        </dependency>
+
 
     </dependencies>
 

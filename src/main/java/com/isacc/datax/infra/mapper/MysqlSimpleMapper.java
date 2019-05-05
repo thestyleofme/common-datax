@@ -57,7 +57,7 @@ public interface MysqlSimpleMapper {
 	 *
 	 * @param dbId Hive数据库ID
 	 * @return java.util.List<java.util.Map < java.lang.String, java.lang.Object>>
-	 * @author HP_USER 2019-04-30 10:54
+	 * @author isacc 2019-04-30 10:54
 	 */
 	@DS("hivemetadata")
 	@Select("SELECT " +

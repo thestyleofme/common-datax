@@ -28,7 +28,7 @@ public class DataxSetting {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	@JsonInclude(JsonInclude.Include.NON_NULL)
-	public static class ErrorLimit{
+	public static class ErrorLimit {
 
 		/**
 		 * record

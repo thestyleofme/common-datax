@@ -50,3 +50,10 @@ mybatis:
   mapperLocations: classpath*:/mapper/*.xml
   configuration:
     mapUnderscoreToCamelCase: true
+
+datax:
+  # 生成的datax json文件所在目录
+  dicPath: src/main/resources/datax/
+  mysql2hive:
+    # 增量导入freemarker模板文件
+    whereTemplate: mysql2hive_where.ftl

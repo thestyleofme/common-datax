@@ -1,9 +1,7 @@
 package com.isacc.datax.app.service.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.io.File;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotBlank;
@@ -15,10 +13,16 @@ import com.isacc.datax.app.service.DataxService;
 import com.isacc.datax.app.service.HiveService;
 import com.isacc.datax.domain.entity.reader.hdfsreader.HdfsFileTypeEnum;
 import com.isacc.datax.domain.entity.reader.mysqlreader.MysqlReaderConnection;
+import com.isacc.datax.domain.entity.writer.hdfswiter.HdfsWriterModeEnum;
 import com.isacc.datax.infra.constant.Constants;
 import com.isacc.datax.infra.mapper.MysqlSimpleMapper;
+import com.isacc.datax.infra.util.FreemarkerUtils;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -35,6 +39,10 @@ public class DataxServiceImpl implements DataxService {
 
 	private final MysqlSimpleMapper mysqlSimpleMapper;
 	private final HiveService hiveService;
+	@Value("${datax.dicPath}")
+	private String dicPath;
+	@Value("${datax.mysql2hive.whereTemplate}")
+	private String whereTemplate;
 
 	@Autowired
 	public DataxServiceImpl(MysqlSimpleMapper mysqlSimpleMapper, HiveService hiveService) {
@@ -52,9 +60,94 @@ public class DataxServiceImpl implements DataxService {
 		if (!this.hiveDbAndTblIsExist(mysql2HiveDTO).getResult()) {
 			return this.hiveDbAndTblIsExist(mysql2HiveDTO);
 		}
-		// writeMode
+		// 校验writeMode
+		if (!this.checkWriteMode(mysql2HiveDTO).getResult()) {
+			return this.checkWriteMode(mysql2HiveDTO);
+		}
 		// 创建datax job json文件
+		if (!this.createJsonFile(mysql2HiveDTO).getResult()) {
+			return this.createJsonFile(mysql2HiveDTO);
+		}
+		// 上传到datax服务器
 		// 远程执行python进行导数
+		return ApiResult.SUCCESS;
+	}
+
+	/**
+	 * 生成datax json文件
+	 *
+	 * @param mysql2HiveDTO Mysql2HiveDTO
+	 * @return com.isacc.datax.api.dto.ApiResult<java.lang.Object>
+	 * @author isacc 2019-05-05 16:42
+	 */
+	private ApiResult<Object> createJsonFile(Mysql2HiveDTO mysql2HiveDTO) {
+		try {
+			Configuration cfg = FreemarkerUtils.getConfiguration();
+			final Map<String, Object> root = generateDataModel(mysql2HiveDTO);
+			Template template = cfg.getTemplate(whereTemplate, Locale.CHINA);
+			final String jsonFileName = FreemarkerUtils.generateFileName();
+			final File file = new File(dicPath + jsonFileName);
+			if (!file.exists()) {
+				final boolean newFile = file.createNewFile();
+				if (!newFile) {
+					ApiResult.FAILURE.setMessage("the json file: " + jsonFileName + ", create failure");
+					return ApiResult.FAILURE;
+				}
+			}
+			FileWriterWithEncoding writer = new FileWriterWithEncoding(file, "UTF-8");
+			template.process(root, writer);
+			writer.close();
+		} catch (Exception e) {
+			log.error("create json file failure!", e);
+			ApiResult.FAILURE.setMessage("create json file failure!");
+			ApiResult.FAILURE.setContent(e.getMessage());
+			return ApiResult.FAILURE;
+		}
+		return ApiResult.SUCCESS;
+	}
+
+	/**
+	 * 创建freemarker的DataModel
+	 *
+	 * @param mysql2HiveDTO Mysql2HiveDTO
+	 * @return java.util.Map<java.lang.String, java.lang.Object>
+	 * @author isacc 2019-05-05 16:04
+	 */
+	private Map<String, Object> generateDataModel(Mysql2HiveDTO mysql2HiveDTO) {
+		final HashMap<String, Object> root = new HashMap<>(16);
+		// setting
+		root.put("setting", mysql2HiveDTO.getSetting());
+		// mysql
+		root.put("username", mysql2HiveDTO.getReader().getUsername());
+		root.put("password", mysql2HiveDTO.getReader().getPassword());
+		root.put("mysqlColumn", mysql2HiveDTO.getReader().getColumn());
+		root.put("connection", mysql2HiveDTO.getReader().getConnection());
+		root.put("where", mysql2HiveDTO.getReader().getWhere());
+		// hdfs
+		root.put("hdfsColumn", mysql2HiveDTO.getWriter().getColumn());
+		root.put("defaultFS", mysql2HiveDTO.getWriter().getDefaultFS());
+		root.put("fileType", mysql2HiveDTO.getWriter().getFileType());
+		root.put("path", mysql2HiveDTO.getWriter().getPath());
+		root.put("fileName", mysql2HiveDTO.getWriter().getFileName());
+		root.put("writeMode", mysql2HiveDTO.getWriter().getWriteMode());
+		root.put("fieldDelimiter", mysql2HiveDTO.getWriter().getFieldDelimiter());
+		return root;
+	}
+
+	/**
+	 * 检验writeMode
+	 *
+	 * @param mysql2HiveDTO Mysql2HiveDTO
+	 * @return com.isacc.datax.api.dto.ApiResult<java.lang.Object>
+	 * @author isacc 2019-05-02 3:44
+	 */
+	private ApiResult<Object> checkWriteMode(Mysql2HiveDTO mysql2HiveDTO) {
+		@NotBlank String writerMode = mysql2HiveDTO.getWriter().getWriteMode();
+		List<HdfsWriterModeEnum> writerModeInfo = Arrays.stream(HdfsWriterModeEnum.values()).filter(hdfsWriterModeEnum -> writerMode.equalsIgnoreCase(hdfsWriterModeEnum.getWriteMode())).collect(Collectors.toList());
+		if (writerModeInfo.isEmpty()) {
+			ApiResult.FAILURE.setMessage("datax doesn't have this writerMode: " + writerMode);
+			return ApiResult.FAILURE;
+		}
 		return ApiResult.SUCCESS;
 	}
 
@@ -65,7 +158,7 @@ public class DataxServiceImpl implements DataxService {
 	 * @param hiveDb        hive数据库
 	 * @param hiveTable     hive表
 	 * @return com.isacc.datax.api.dto.ApiResult<java.lang.Object>
-	 * @author HP_USER 2019-05-02 4:31
+	 * @author isacc 2019-05-02 4:31
 	 */
 	private ApiResult<Object> createHiveTable(Mysql2HiveDTO mysql2HiveDTO, String hiveDb, String hiveTable) {
 		if (!this.checkHiveTableInfo(mysql2HiveDTO).getResult()) {
@@ -93,7 +186,7 @@ public class DataxServiceImpl implements DataxService {
 	 *
 	 * @param mysql2HiveDTO Mysql2HiveDTO
 	 * @return com.isacc.datax.api.dto.ApiResult<java.lang.Object>
-	 * @author HP_USER 2019-05-02 3:44
+	 * @author isacc 2019-05-02 3:44
 	 */
 	private ApiResult<Object> checkHiveTableInfo(Mysql2HiveDTO mysql2HiveDTO) {
 		@NotBlank String fileType = mysql2HiveDTO.getWriter().getFileType();
