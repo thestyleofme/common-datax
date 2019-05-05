@@ -14,6 +14,7 @@ import com.isacc.datax.app.service.HiveService;
 import com.isacc.datax.domain.entity.reader.hdfsreader.HdfsFileTypeEnum;
 import com.isacc.datax.domain.entity.reader.mysqlreader.MysqlReaderConnection;
 import com.isacc.datax.domain.entity.writer.hdfswiter.HdfsWriterModeEnum;
+import com.isacc.datax.infra.config.DataxProperties;
 import com.isacc.datax.infra.constant.Constants;
 import com.isacc.datax.infra.mapper.MysqlSimpleMapper;
 import com.isacc.datax.infra.util.FreemarkerUtils;
@@ -22,7 +23,6 @@ import freemarker.template.Template;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -39,17 +39,13 @@ public class DataxServiceImpl implements DataxService {
 
 	private final MysqlSimpleMapper mysqlSimpleMapper;
 	private final HiveService hiveService;
-	@Value("${datax.freemarker.basePackagePath}")
-	private String basePackagePath;
-	@Value("${datax.localDicPath}")
-	private String dicPath;
-	@Value("${datax.mysql2hive.whereTemplate}")
-	private String whereTemplate;
+	private final DataxProperties dataxProperties;
 
 	@Autowired
-	public DataxServiceImpl(MysqlSimpleMapper mysqlSimpleMapper, HiveService hiveService) {
+	public DataxServiceImpl(MysqlSimpleMapper mysqlSimpleMapper, HiveService hiveService, DataxProperties dataxProperties) {
 		this.mysqlSimpleMapper = mysqlSimpleMapper;
 		this.hiveService = hiveService;
+		this.dataxProperties = dataxProperties;
 	}
 
 	@Override
@@ -84,11 +80,12 @@ public class DataxServiceImpl implements DataxService {
 	 */
 	private ApiResult<Object> createJsonFile(Mysql2HiveDTO mysql2HiveDTO) {
 		try {
-			Configuration cfg = FreemarkerUtils.getConfiguration(basePackagePath);
+			Configuration cfg = FreemarkerUtils.getConfiguration(dataxProperties.getBasePackagePath());
 			final Map<String, Object> root = generateDataModel(mysql2HiveDTO);
+			final String whereTemplate = dataxProperties.getMysql2Hive().getWhereTemplate();
 			Template template = cfg.getTemplate(whereTemplate, Locale.CHINA);
-			final String jsonFileName = FreemarkerUtils.generateFileName(whereTemplate.substring(0,whereTemplate.lastIndexOf('.')));
-			final File file = new File(dicPath + jsonFileName);
+			final String jsonFileName = FreemarkerUtils.generateFileName(whereTemplate.substring(0, whereTemplate.lastIndexOf('.')));
+			final File file = new File(dataxProperties.getLocalDicPath() + jsonFileName);
 			if (!file.exists()) {
 				final boolean newFile = file.createNewFile();
 				if (!newFile) {
