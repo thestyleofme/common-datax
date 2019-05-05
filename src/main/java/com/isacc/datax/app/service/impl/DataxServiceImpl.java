@@ -82,9 +82,7 @@ public class DataxServiceImpl implements DataxService {
 				// 上传到datax服务器
 				if (this.uploadFile(multipartFile, dataxProperties).getResult()) {
 					// 远程执行python进行导数
-					// 防止序列化失败，先init下
-					ApiResult.init();
-					return ApiResult.SUCCESS;
+					return ApiResult.initSuccess();
 				} else {
 					return this.uploadFile(multipartFile, dataxProperties);
 				}
