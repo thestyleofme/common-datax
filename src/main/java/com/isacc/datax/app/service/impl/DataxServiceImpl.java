@@ -39,6 +39,8 @@ public class DataxServiceImpl implements DataxService {
 
 	private final MysqlSimpleMapper mysqlSimpleMapper;
 	private final HiveService hiveService;
+	@Value("${datax.freemaker.basePackagePath}")
+	private String basePackagePath;
 	@Value("${datax.dicPath}")
 	private String dicPath;
 	@Value("${datax.mysql2hive.whereTemplate}")
@@ -82,10 +84,10 @@ public class DataxServiceImpl implements DataxService {
 	 */
 	private ApiResult<Object> createJsonFile(Mysql2HiveDTO mysql2HiveDTO) {
 		try {
-			Configuration cfg = FreemarkerUtils.getConfiguration();
+			Configuration cfg = FreemarkerUtils.getConfiguration(basePackagePath);
 			final Map<String, Object> root = generateDataModel(mysql2HiveDTO);
 			Template template = cfg.getTemplate(whereTemplate, Locale.CHINA);
-			final String jsonFileName = FreemarkerUtils.generateFileName();
+			final String jsonFileName = FreemarkerUtils.generateFileName(whereTemplate.substring(0,whereTemplate.lastIndexOf('.')));
 			final File file = new File(dicPath + jsonFileName);
 			if (!file.exists()) {
 				final boolean newFile = file.createNewFile();

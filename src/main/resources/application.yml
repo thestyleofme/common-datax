@@ -52,6 +52,9 @@ mybatis:
     mapUnderscoreToCamelCase: true
 
 datax:
+  freemarker:
+    # freemarker文件所在目录
+    basePackagePath: /templates
   # 生成的datax json文件所在目录
   dicPath: src/main/resources/datax/
   mysql2hive:

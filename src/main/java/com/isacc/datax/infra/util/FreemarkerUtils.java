@@ -14,17 +14,17 @@ import freemarker.template.Configuration;
  */
 public class FreemarkerUtils {
 
-	public static Configuration getConfiguration(){
+	public static Configuration getConfiguration(String basePackagePath){
 		Configuration cfg = new Configuration(Configuration.VERSION_2_3_28);
-		cfg.setClassForTemplateLoading(DataxApplication.class, "/templates");
+		cfg.setClassForTemplateLoading(DataxApplication.class, basePackagePath);
 		return cfg;
 	}
 
-	public static String generateFileName(){
+	public static String generateFileName(String name){
 		final LocalDateTime now = LocalDateTime.now();
 		final String localDate = now.toLocalDate().toString();
 		final String localTime = now.toLocalTime().toString().replace(':', '-').replace('.', '-');
-		return "mysql2hive_where" + localDate + "-" + localTime + ".json";
+		return name + localDate + "-" + localTime + ".json";
 	}
 
 
