@@ -39,9 +39,9 @@ public class DataxServiceImpl implements DataxService {
 
 	private final MysqlSimpleMapper mysqlSimpleMapper;
 	private final HiveService hiveService;
-	@Value("${datax.freemaker.basePackagePath}")
+	@Value("${datax.freemarker.basePackagePath}")
 	private String basePackagePath;
-	@Value("${datax.dicPath}")
+	@Value("${datax.localDicPath}")
 	private String dicPath;
 	@Value("${datax.mysql2hive.whereTemplate}")
 	private String whereTemplate;
