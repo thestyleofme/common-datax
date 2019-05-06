@@ -73,8 +73,8 @@ public class DataxServiceImpl implements DataxService {
 			return this.checkWriteMode(mysql2HiveDTO);
 		}
 		// 创建datax job json文件
-		if (this.createJsonFile(mysql2HiveDTO).getResult()) {
-			final ApiResult<Object> jsonResult = this.createJsonFile(mysql2HiveDTO);
+		final ApiResult<Object> jsonResult = this.createJsonFile(mysql2HiveDTO);
+		if (jsonResult.getResult()) {
 			final File jsonFile = (File) jsonResult.getContent();
 			// file转为MultipartFile
 			if (this.file2MultipartFile(jsonFile).getResult()) {
@@ -90,7 +90,7 @@ public class DataxServiceImpl implements DataxService {
 				return this.file2MultipartFile(jsonFile);
 			}
 		} else {
-			return this.createJsonFile(mysql2HiveDTO);
+			return jsonResult;
 		}
 	}
 
