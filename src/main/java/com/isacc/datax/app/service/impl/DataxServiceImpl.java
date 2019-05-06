@@ -61,33 +61,38 @@ public class DataxServiceImpl implements DataxService {
 	@Override
 	public ApiResult<Object> mysql2Hive(Mysql2HiveDTO mysql2HiveDTO) {
 		// 判断mysql的数据库/表是否存在，无则报错返回
-		if (!this.mysqlDbAndTblIsExist(mysql2HiveDTO).getResult()) {
-			return this.mysqlDbAndTblIsExist(mysql2HiveDTO);
+		final ApiResult<Object> mysqlApiResult = this.mysqlDbAndTblIsExist(mysql2HiveDTO);
+		if (!mysqlApiResult.getResult()) {
+			return mysqlApiResult;
 		}
 		// 判断hive的数据库/表是否存在，无则创建库表
-		if (!this.hiveDbAndTblIsExist(mysql2HiveDTO).getResult()) {
-			return this.hiveDbAndTblIsExist(mysql2HiveDTO);
+		final ApiResult<Object> hiveApiResult = this.hiveDbAndTblIsExist(mysql2HiveDTO);
+		if (!hiveApiResult.getResult()) {
+			return hiveApiResult;
 		}
 		// 校验writeMode
-		if (!this.checkWriteMode(mysql2HiveDTO).getResult()) {
-			return this.checkWriteMode(mysql2HiveDTO);
+		final ApiResult<Object> writeModeApiResult = this.checkWriteMode(mysql2HiveDTO);
+		if (!writeModeApiResult.getResult()) {
+			return writeModeApiResult;
 		}
 		// 创建datax job json文件
 		final ApiResult<Object> jsonResult = this.createJsonFile(mysql2HiveDTO);
 		if (jsonResult.getResult()) {
 			final File jsonFile = (File) jsonResult.getContent();
 			// file转为MultipartFile
-			if (this.file2MultipartFile(jsonFile).getResult()) {
+			final ApiResult<Object> file2MultiApiResult = this.file2MultipartFile(jsonFile);
+			if (file2MultiApiResult.getResult()) {
 				final MultipartFile multipartFile = (MultipartFile) file2MultipartFile(jsonFile).getContent();
 				// 上传到datax服务器
-				if (this.uploadFile(multipartFile, dataxProperties).getResult()) {
+				final ApiResult<Object> uploadFileApiResult = this.uploadFile(multipartFile, dataxProperties);
+				if (uploadFileApiResult.getResult()) {
 					// 远程执行python进行导数
 					return ApiResult.initSuccess();
 				} else {
-					return this.uploadFile(multipartFile, dataxProperties);
+					return uploadFileApiResult;
 				}
 			} else {
-				return this.file2MultipartFile(jsonFile);
+				return file2MultiApiResult;
 			}
 		} else {
 			return jsonResult;
