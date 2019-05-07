@@ -57,7 +57,7 @@ public interface MysqlSimpleMapper {
 	 *
 	 * @param hiveDbName hive db name
 	 * @return java.util.Map<java.lang.String, java.lang.Object>
-	 * @author HP_USER 2019-05-07 15:54
+	 * @author isacc 2019-05-07 15:54
 	 */
 	@DS("hivemetadata")
 	@Select("select DB_ID,`DESC`,DB_LOCATION_URI,`NAME`,OWNER_NAME,OWNER_TYPE from dbs " +
@@ -71,7 +71,7 @@ public interface MysqlSimpleMapper {
 	 * @param dbId        hive数据库id
 	 * @param hiveTblName hive数据表名称
 	 * @return java.util.Map<java.lang.String, java.lang.Object>
-	 * @author HP_USER 2019-05-07 16:08
+	 * @author isacc 2019-05-07 16:08
 	 */
 	@DS("hivemetadata")
 	@Select("SELECT " +

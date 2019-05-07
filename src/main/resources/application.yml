@@ -64,4 +64,6 @@ datax:
   localDicPath: src/main/resources/datax/
   mysql2hive:
     whereTemplate: mysql2hive_where.ftl
+  hive2hive:
+    noDtTemplate: hive2hive_without_dt.ftl
 

@@ -30,3 +30,4 @@ HELP.md
 /logs/
 /mvnw
 /mvnw.cmd
+/src/main/resources/datax/

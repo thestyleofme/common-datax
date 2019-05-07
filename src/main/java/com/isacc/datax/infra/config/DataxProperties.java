@@ -18,50 +18,60 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = DataxProperties.PROPERTY_PREFIX)
 public class DataxProperties {
 
-	public static final String PROPERTY_PREFIX = "datax";
-	/**
-	 * datax home
-	 */
-	private String home;
-	/**
-	 * datax server host
-	 */
-	private String host;
-	/**
-	 * datax server port
-	 */
-	private String port;
-	/**
-	 * datax server username
-	 */
-	private String username;
-	/**
-	 * datax server username
-	 */
-	private String password;
-	/**
-	 * 生成的datax json文件上传到datax服务器目录
-	 */
-	private String uploadDicPath;
-	/**
-	 * 本地生成的datax json文件在目录
-	 */
-	private String localDicPath;
-	/**
-	 * freemarker文件所在目录
-	 */
-	private String basePackagePath;
+    public static final String PROPERTY_PREFIX = "datax";
+    /**
+     * datax home
+     */
+    private String home;
+    /**
+     * datax server host
+     */
+    private String host;
+    /**
+     * datax server port
+     */
+    private String port;
+    /**
+     * datax server username
+     */
+    private String username;
+    /**
+     * datax server username
+     */
+    private String password;
+    /**
+     * 生成的datax json文件上传到datax服务器目录
+     */
+    private String uploadDicPath;
+    /**
+     * 本地生成的datax json文件在目录
+     */
+    private String localDicPath;
+    /**
+     * freemarker文件所在目录
+     */
+    private String basePackagePath;
 
-	private Mysql2Hive mysql2Hive;
+    private Mysql2Hive mysql2Hive;
 
-	@SuppressWarnings("WeakerAccess")
-	@Data
-	public static class Mysql2Hive {
-		/**
-		 * 增量导入freemarker模板文件
-		 */
-		private String whereTemplate;
+    private Hive2Hive hive2Hive;
 
-	}
+    @SuppressWarnings("WeakerAccess")
+    @Data
+    public static class Mysql2Hive {
+        /**
+         * mysql2hive的freemarker模板文件名称，使用where
+         */
+        private String whereTemplate;
+    }
 
+    @SuppressWarnings("WeakerAccess")
+    @Data
+    public static class Hive2Hive {
+
+        /**
+         * hive2hive的freemarker模板文件名称，未使用分区
+         */
+        private String noDtTemplate;
+    }
 }
