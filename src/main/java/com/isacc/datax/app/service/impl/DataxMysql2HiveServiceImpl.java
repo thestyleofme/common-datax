@@ -59,7 +59,7 @@ public class DataxMysql2HiveServiceImpl implements DataxMysql2HiveService {
 	}
 
 	@Override
-	public ApiResult<Object> mysql2Hive(Mysql2HiveDTO mysql2HiveDTO) {
+	public ApiResult<Object> mysql2HiveWhere(Mysql2HiveDTO mysql2HiveDTO) {
 		// 判断mysql的数据库/表是否存在，无则报错返回
 		final ApiResult<Object> mysqlApiResult = this.mysqlDbAndTblIsExist(mysql2HiveDTO);
 		if (!mysqlApiResult.getResult()) {

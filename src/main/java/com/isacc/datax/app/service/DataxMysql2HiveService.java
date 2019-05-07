@@ -19,7 +19,7 @@ public interface DataxMysql2HiveService {
 	 * @return com.isacc.datax.api.dto.ApiResult<java.lang.Object>
 	 * @author isacc 2019-04-29 17:08
 	 */
-	ApiResult<Object> mysql2Hive(Mysql2HiveDTO mysql2HiveDTO);
+	ApiResult<Object> mysql2HiveWhere(Mysql2HiveDTO mysql2HiveDTO);
 
 
 }

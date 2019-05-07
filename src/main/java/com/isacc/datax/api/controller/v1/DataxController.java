@@ -24,9 +24,9 @@ public class DataxController {
 		this.mysql2HiveService = mysql2HiveService;
 	}
 
-	@PostMapping("/mysql-hive")
-	public ApiResult<Object> mysql2Hive(@RequestBody Mysql2HiveDTO mysql2HiveDTO) {
-		return mysql2HiveService.mysql2Hive(mysql2HiveDTO);
+	@PostMapping("/mysql-hive-where")
+	public ApiResult<Object> mysql2HiveWhere(@RequestBody Mysql2HiveDTO mysql2HiveDTO) {
+		return mysql2HiveService.mysql2HiveWhere(mysql2HiveDTO);
 	}
 
 }
