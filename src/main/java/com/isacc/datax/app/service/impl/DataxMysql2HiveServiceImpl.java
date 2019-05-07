@@ -12,7 +12,7 @@ import javax.validation.constraints.NotBlank;
 import com.isacc.datax.api.dto.ApiResult;
 import com.isacc.datax.api.dto.HiveInfoDTO;
 import com.isacc.datax.api.dto.Mysql2HiveDTO;
-import com.isacc.datax.app.service.DataxService;
+import com.isacc.datax.app.service.DataxMysql2HiveService;
 import com.isacc.datax.app.service.HiveService;
 import com.isacc.datax.domain.entity.reader.hdfsreader.HdfsFileTypeEnum;
 import com.isacc.datax.domain.entity.reader.mysqlreader.MysqlReaderConnection;
@@ -45,14 +45,14 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 @Service
 @Slf4j
-public class DataxServiceImpl implements DataxService {
+public class DataxMysql2HiveServiceImpl implements DataxMysql2HiveService {
 
 	private final MysqlSimpleMapper mysqlSimpleMapper;
 	private final HiveService hiveService;
 	private final DataxProperties dataxProperties;
 
 	@Autowired
-	public DataxServiceImpl(MysqlSimpleMapper mysqlSimpleMapper, HiveService hiveService, DataxProperties dataxProperties) {
+	public DataxMysql2HiveServiceImpl(MysqlSimpleMapper mysqlSimpleMapper, HiveService hiveService, DataxProperties dataxProperties) {
 		this.mysqlSimpleMapper = mysqlSimpleMapper;
 		this.hiveService = hiveService;
 		this.dataxProperties = dataxProperties;
@@ -143,7 +143,7 @@ public class DataxServiceImpl implements DataxService {
 			ApiResult.SUCCESS.setContent(multipartFile);
 			return ApiResult.SUCCESS;
 		} catch (IOException e) {
-			log.error("upload json file error,", e);
+			log.error("file to MultipartFile error,", e);
 			ApiResult.FAILURE.setResult(false);
 			ApiResult.FAILURE.setMessage(e.getMessage());
 			return ApiResult.FAILURE;

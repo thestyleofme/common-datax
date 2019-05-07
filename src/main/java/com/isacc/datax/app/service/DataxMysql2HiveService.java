@@ -10,7 +10,7 @@ import com.isacc.datax.api.dto.Mysql2HiveDTO;
  *
  * @author isacc 2019/04/29 17:05
  */
-public interface DataxService {
+public interface DataxMysql2HiveService {
 
 	/**
 	 * Mysql导数到Hive
@@ -20,4 +20,6 @@ public interface DataxService {
 	 * @author isacc 2019-04-29 17:08
 	 */
 	ApiResult<Object> mysql2Hive(Mysql2HiveDTO mysql2HiveDTO);
+
+
 }

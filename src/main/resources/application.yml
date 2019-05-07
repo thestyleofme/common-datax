@@ -51,6 +51,7 @@ mybatis:
   configuration:
     mapUnderscoreToCamelCase: true
 
+# 这里只要是路径，后面都加上/
 datax:
   home: /usr/local/DataX/target/datax/datax/
   host: datax01
