@@ -7,6 +7,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.isacc.datax.domain.entity.reader.BaseReader;
 import lombok.*;
 
 /**
@@ -22,7 +23,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class HdfsReader {
+public class HdfsReader extends BaseReader {
 
 	/**
 	 * 要读取的文件路径，如果要读取多个文件，可以使用正则表达式"*"，只支持"*"和"?"作为文件通配符

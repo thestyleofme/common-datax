@@ -114,9 +114,9 @@ public class DataxMysql2HiveServiceImpl implements DataxMysql2HiveService {
 			util.connectServerUseExec(command, getDataxInfo(dataxProperties));
 		} catch (JSchException | IOException e) {
 			log.error("command execution failed,", e);
-			ApiResult.FAILURE.setResult(false);
-			ApiResult.FAILURE.setMessage(e.getMessage());
-			return ApiResult.FAILURE;
+			final ApiResult<Object> failureApiResult = ApiResult.initFailure();
+			failureApiResult.setMessage(e.getMessage());
+			return failureApiResult;
 		}
 		return ApiResult.initSuccess();
 	}
@@ -129,6 +129,7 @@ public class DataxMysql2HiveServiceImpl implements DataxMysql2HiveService {
 	 * @author isacc 2019-05-05 20:44
 	 */
 	private ApiResult<Object> file2MultipartFile(File jsonFile) {
+		final ApiResult<Object> successApiResult = ApiResult.initSuccess();
 		FileItemFactory factory = new DiskFileItemFactory(16, null);
 		FileItem fileItem = factory.createItem(jsonFile.getName(), "text/html", true, jsonFile.getName());
 		int bytesRead;
@@ -140,13 +141,13 @@ public class DataxMysql2HiveServiceImpl implements DataxMysql2HiveService {
 				os.write(buffer, 0, bytesRead);
 			}
 			MultipartFile multipartFile = new CommonsMultipartFile(fileItem);
-			ApiResult.SUCCESS.setContent(multipartFile);
-			return ApiResult.SUCCESS;
+			successApiResult.setContent(multipartFile);
+			return successApiResult;
 		} catch (IOException e) {
 			log.error("file to MultipartFile error,", e);
-			ApiResult.FAILURE.setResult(false);
-			ApiResult.FAILURE.setMessage(e.getMessage());
-			return ApiResult.FAILURE;
+			final ApiResult<Object> failureApiResult = ApiResult.initFailure();
+			failureApiResult.setMessage(e.getMessage());
+			return failureApiResult;
 		}
 	}
 
@@ -158,10 +159,11 @@ public class DataxMysql2HiveServiceImpl implements DataxMysql2HiveService {
 	 * @return com.isacc.datax.api.dto.ApiResult<java.lang.Object>
 	 */
 	private ApiResult<Object> uploadFile(MultipartFile file, DataxProperties dataxProperties) {
+		final ApiResult<Object> failureApiResult = ApiResult.initFailure();
+		final ApiResult<Object> successApiResult = ApiResult.initSuccess();
 		if (file.isEmpty()) {
-			ApiResult.FAILURE.setResult(false);
-			ApiResult.FAILURE.setMessage("the select file is empty!");
-			return ApiResult.FAILURE;
+			failureApiResult.setMessage("the select file is empty!");
+			return failureApiResult;
 		}
 		String fileName = file.getOriginalFilename();
 		try (SftpUtil util = new SftpUtil()) {
@@ -169,13 +171,12 @@ public class DataxMysql2HiveServiceImpl implements DataxMysql2HiveService {
 			util.uploadFile(dataxProperties.getUploadDicPath() + '/' + fileName, file.getInputStream());
 		} catch (Exception e) {
 			log.error("upload json file error,", e);
-			ApiResult.FAILURE.setResult(false);
-			ApiResult.FAILURE.setMessage("upload file error!");
-			ApiResult.FAILURE.setContent(e.getMessage());
-			return ApiResult.FAILURE;
+			failureApiResult.setMessage("upload file error!");
+			failureApiResult.setContent(e.getMessage());
+			return failureApiResult;
 		}
-		ApiResult.SUCCESS.setContent(fileName);
-		return ApiResult.SUCCESS;
+		successApiResult.setContent(fileName);
+		return successApiResult;
 	}
 
 	/**
@@ -203,6 +204,8 @@ public class DataxMysql2HiveServiceImpl implements DataxMysql2HiveService {
 	 */
 	private ApiResult<Object> createJsonFile(Mysql2HiveDTO mysql2HiveDTO) {
 		try {
+			final ApiResult<Object> successApiResult = ApiResult.initSuccess();
+			final ApiResult<Object> failureApiResult = ApiResult.initFailure();
 			Configuration cfg = FreemarkerUtils.getConfiguration(dataxProperties.getBasePackagePath());
 			final Map<String, Object> root = generateDataModel(mysql2HiveDTO);
 			final String whereTemplate = dataxProperties.getMysql2Hive().getWhereTemplate();
@@ -212,20 +215,21 @@ public class DataxMysql2HiveServiceImpl implements DataxMysql2HiveService {
 			if (!file.exists()) {
 				final boolean newFile = file.createNewFile();
 				if (!newFile) {
-					ApiResult.FAILURE.setMessage("the json file: " + jsonFileName + ", create failure");
-					return ApiResult.FAILURE;
+					failureApiResult.setMessage("the json file: " + jsonFileName + ", create failure");
+					return failureApiResult;
 				}
 			}
 			FileWriterWithEncoding writer = new FileWriterWithEncoding(file, "UTF-8");
 			template.process(root, writer);
 			writer.close();
-			ApiResult.SUCCESS.setContent(file);
-			return ApiResult.SUCCESS;
+			successApiResult.setContent(file);
+			return successApiResult;
 		} catch (Exception e) {
 			log.error("create json file failure!", e);
-			ApiResult.FAILURE.setMessage("create json file failure!");
-			ApiResult.FAILURE.setContent(e.getMessage());
-			return ApiResult.FAILURE;
+			final ApiResult<Object> failureApiResult = ApiResult.initFailure();
+			failureApiResult.setMessage("create json file failure!");
+			failureApiResult.setContent(e.getMessage());
+			return failureApiResult;
 		}
 	}
 
@@ -268,8 +272,9 @@ public class DataxMysql2HiveServiceImpl implements DataxMysql2HiveService {
 		@NotBlank String writerMode = mysql2HiveDTO.getWriter().getWriteMode();
 		List<HdfsWriterModeEnum> writerModeInfo = Arrays.stream(HdfsWriterModeEnum.values()).filter(hdfsWriterModeEnum -> writerMode.equalsIgnoreCase(hdfsWriterModeEnum.getWriteMode())).collect(Collectors.toList());
 		if (writerModeInfo.isEmpty()) {
-			ApiResult.FAILURE.setMessage("datax doesn't have this writerMode: " + writerMode);
-			return ApiResult.FAILURE;
+			final ApiResult<Object> failureApiResult = ApiResult.initFailure();
+			failureApiResult.setMessage("datax doesn't have this writerMode: " + writerMode);
+			return failureApiResult;
 		}
 		return ApiResult.initSuccess();
 	}
@@ -298,9 +303,10 @@ public class DataxMysql2HiveServiceImpl implements DataxMysql2HiveService {
 			log.info("create hive table:{}.{}", hiveDb, hiveTable);
 			return ApiResult.initSuccess();
 		} catch (Exception e) {
-			ApiResult.FAILURE.setMessage("there are something went wrong in hive!");
-			ApiResult.FAILURE.setContent("error: " + e.getMessage());
-			return ApiResult.FAILURE;
+			final ApiResult<Object> failureApiResult = ApiResult.initFailure();
+			failureApiResult.setMessage("there are something went wrong in hive!");
+			failureApiResult.setContent("error: " + e.getMessage());
+			return failureApiResult;
 		}
 	}
 
@@ -315,13 +321,15 @@ public class DataxMysql2HiveServiceImpl implements DataxMysql2HiveService {
 		@NotBlank String fileType = mysql2HiveDTO.getWriter().getFileType();
 		List<HdfsFileTypeEnum> fileTypeInfo = Arrays.stream(HdfsFileTypeEnum.values()).filter(hdfsFileTypeEnum -> fileType.equalsIgnoreCase(hdfsFileTypeEnum.name())).collect(Collectors.toList());
 		if (fileTypeInfo.isEmpty()) {
-			ApiResult.FAILURE.setMessage("datax doesn't have this fileType: " + fileType);
-			return ApiResult.FAILURE;
+			final ApiResult<Object> apiResult = ApiResult.initFailure();
+			apiResult.setMessage("datax doesn't have this fileType: " + fileType);
+			return apiResult;
 		}
 		@NotBlank String fieldDelimiter = mysql2HiveDTO.getWriter().getFieldDelimiter();
 		if (fieldDelimiter.replace(Constants.Symbol.BACKSLASH, "").replace(Constants.Symbol.SLASH, "").length() != 1) {
-			ApiResult.FAILURE.setMessage(String.format("datax supports only single-character field delimiter, which you configure as : [%s]", fieldDelimiter));
-			return ApiResult.FAILURE;
+			final ApiResult<Object> apiResult = ApiResult.initFailure();
+			apiResult.setMessage(String.format("datax supports only single-character field delimiter, which you configure as : [%s]", fieldDelimiter));
+			return apiResult;
 		}
 		return ApiResult.initSuccess();
 	}
@@ -335,23 +343,21 @@ public class DataxMysql2HiveServiceImpl implements DataxMysql2HiveService {
 	 */
 	private ApiResult<Object> hiveDbAndTblIsExist(Mysql2HiveDTO mysql2HiveDTO) {
 		@NotBlank String path = mysql2HiveDTO.getWriter().getPath();
-		@NotBlank String defaultFS = mysql2HiveDTO.getWriter().getDefaultFS();
-		String hiveUrl = path.substring(0, path.lastIndexOf('/'));
-		String hiveDb = hiveUrl.substring(hiveUrl.lastIndexOf('/') + 1, hiveUrl.indexOf('.'));
-		String hiveTable = path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('?') == -1 ? path.length() : path.lastIndexOf('?'));
-		List<Map<String, Object>> allHiveDatabases = mysqlSimpleMapper.allHiveDatabases();
-		List<Map<String, Object>> databaseInfo = allHiveDatabases.stream().filter(map -> String.valueOf(map.get("DB_LOCATION_URI")).equals(defaultFS + hiveUrl)).collect(Collectors.toList());
-		if (databaseInfo.isEmpty()) {
+		String hivePath = path.substring(0, path.lastIndexOf('/'));
+		String hiveDbName = hivePath.substring(hivePath.lastIndexOf('/') + 1, hivePath.indexOf('.'));
+		String hiveTblName = path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('?') == -1 ? path.length() : path.lastIndexOf('?'));
+		final Map<String, Object> hiveDbInfoMap = mysqlSimpleMapper.hiveDbIsExist(hiveDbName);
+		if (Objects.isNull(hiveDbInfoMap)) {
 			// 不存在hive数据库，先创建库，再根据所选字段创建表
-			hiveService.createDatabase(hiveDb);
-			log.info("create hive database：{}", hiveDb);
-			return this.createHiveTable(mysql2HiveDTO, hiveDb, hiveTable);
+			hiveService.createDatabase(hiveDbName);
+			log.info("create hive database：{}", hiveDbName);
+			return this.createHiveTable(mysql2HiveDTO, hiveDbName, hiveTblName);
 		} else {
-			List<Map<String, Object>> allHiveTblsInDb = mysqlSimpleMapper.allHiveTableByDatabase(Long.valueOf(String.valueOf(databaseInfo.get(0).get("DB_ID"))));
-			List<Map<String, Object>> hiveTableInfo = allHiveTblsInDb.stream().filter(map -> String.valueOf(map.get("TBL_NAME")).equals(hiveTable)).collect(Collectors.toList());
-			if (hiveTableInfo.isEmpty()) {
+			final Long dbId = Long.valueOf(String.valueOf(hiveDbInfoMap.get("DB_ID")));
+			final Map<String, Object> hiveTblInfoMap = mysqlSimpleMapper.hiveTblIsExist(dbId, hiveTblName);
+			if (Objects.isNull(hiveTblInfoMap)) {
 				// 存在hive数据库但不存在表，根据所选字段创建表
-				return this.createHiveTable(mysql2HiveDTO, hiveDb, hiveTable);
+				return this.createHiveTable(mysql2HiveDTO, hiveDbName, hiveTblName);
 			}
 			return ApiResult.initSuccess();
 		}
@@ -365,6 +371,7 @@ public class DataxMysql2HiveServiceImpl implements DataxMysql2HiveService {
 	 * @author isacc 2019-04-29 21:11
 	 */
 	private ApiResult<Object> mysqlDbAndTblIsExist(Mysql2HiveDTO mysql2HiveDTO) {
+		final ApiResult<Object> failureApiResult = ApiResult.initFailure();
 		final List<String> databaseNameList = new ArrayList<>(5);
 		final List<String> tableList = new ArrayList<>(10);
 		mysql2HiveDTO.getReader().getConnection().stream().map(MysqlReaderConnection::getJdbcUrl).forEach(jdbcUrls -> jdbcUrls.forEach(url ->
@@ -372,27 +379,27 @@ public class DataxMysql2HiveServiceImpl implements DataxMysql2HiveService {
 		));
 		List<String> collect = databaseNameList.stream().distinct().collect(Collectors.toList());
 		if (collect.size() != 1) {
-			ApiResult.FAILURE.setMessage("mysqlreader jdbcUrl database has too many!");
-			ApiResult.FAILURE.setContent("databases: " + collect);
-			return ApiResult.FAILURE;
+			failureApiResult.setMessage("mysqlreader jdbcUrl database has too many!");
+			failureApiResult.setContent("databases: " + collect);
+			return failureApiResult;
 		}
 		String databaseName = collect.get(0);
-		if (mysqlSimpleMapper.databaseIsExist(databaseName) == 0) {
-			ApiResult.FAILURE.setMessage("mysqlreader jdbcUrl database is not exist!");
-			ApiResult.FAILURE.setContent("database: " + databaseName);
-			return ApiResult.FAILURE;
+		if (mysqlSimpleMapper.mysqlDbIsExist(databaseName) == 0) {
+			failureApiResult.setMessage("mysqlreader jdbcUrl database is not exist!");
+			failureApiResult.setContent("database: " + databaseName);
+			return failureApiResult;
 		}
 		mysql2HiveDTO.getReader().getConnection().stream().map(MysqlReaderConnection::getTable).forEach(tableList::addAll);
 		final List<String> notExistTables = new ArrayList<>(10);
 		tableList.forEach(table -> {
-			if (mysqlSimpleMapper.tableIsExist(databaseName, table) == 0) {
+			if (mysqlSimpleMapper.mysqlTblIsExist(databaseName, table) == 0) {
 				notExistTables.add(table);
 			}
 		});
 		if (!notExistTables.isEmpty()) {
-			ApiResult.FAILURE.setMessage("mysqlreader table does not exist!");
-			ApiResult.FAILURE.setContent("table not exist: " + notExistTables);
-			return ApiResult.FAILURE;
+			failureApiResult.setMessage("mysqlreader table does not exist!");
+			failureApiResult.setContent("table not exist: " + notExistTables);
+			return failureApiResult;
 		}
 		return ApiResult.initSuccess();
 	}

@@ -33,6 +33,7 @@ public class HiveServiceImpl implements HiveService {
 
 	@Override
 	public ApiResult<Object> createTable(HiveInfoDTO hiveInfoDTO) {
+		final ApiResult<Object> successApiResult = ApiResult.initSuccess();
 		List<HdfsColumn> columns = hiveInfoDTO.getColumns();
 		final String columnSql;
 		StringBuilder sb = new StringBuilder();
@@ -46,28 +47,31 @@ public class HiveServiceImpl implements HiveService {
 		log.info("创表语句：{}", sql);
 		try {
 			jdbcTemplate.execute(sql);
-			ApiResult.SUCCESS.setMessage(String.format("成功创建表%s!", hiveInfoDTO.getTableName()));
-			return ApiResult.SUCCESS;
+			successApiResult.setMessage(String.format("成功创建表%s!", hiveInfoDTO.getTableName()));
+			return successApiResult;
 		} catch (Exception e) {
 			log.error("execute create table error: ", e);
-			ApiResult.FAILURE.setMessage(String.format("创建表%ss失败!", hiveInfoDTO.getTableName()));
-			ApiResult.FAILURE.setContent(e.getMessage());
-			return ApiResult.FAILURE;
+			final ApiResult<Object> failureApiResult = ApiResult.initFailure();
+			failureApiResult.setMessage(String.format("创建表%ss失败!", hiveInfoDTO.getTableName()));
+			failureApiResult.setContent(e.getMessage());
+			return failureApiResult;
 		}
 	}
 
 	@Override
 	public ApiResult<Object> createDatabase(String databaseName) {
 		final String sql = String.format("CREATE DATABASE IF NOT EXISTS %s", databaseName);
+		final ApiResult<Object> successApiResult = ApiResult.initSuccess();
 		try {
 			jdbcTemplate.execute(sql);
-			ApiResult.SUCCESS.setMessage(String.format("成功创建数据库%s!", databaseName));
-			return ApiResult.SUCCESS;
+			successApiResult.setMessage(String.format("成功创建数据库%s!", databaseName));
+			return successApiResult;
 		} catch (Exception e) {
 			log.error("execute create database error {}", e);
-			ApiResult.FAILURE.setMessage(String.format("成功创建数据库%s!", databaseName));
-			ApiResult.FAILURE.setContent(e.getMessage());
-			return ApiResult.FAILURE;
+			final ApiResult<Object> failureApiResult = ApiResult.initFailure();
+			failureApiResult.setMessage(String.format("成功创建数据库%s!", databaseName));
+			failureApiResult.setContent(e.getMessage());
+			return failureApiResult;
 		}
 	}
 
@@ -76,13 +80,15 @@ public class HiveServiceImpl implements HiveService {
 		final String sql = String.format("DROP TABLE IF EXISTS %s%s%s", hiveInfoDTO.getDatabaseName(), Constants.Symbol.POINT, hiveInfoDTO.getTableName());
 		try {
 			jdbcTemplate.execute(sql);
-			ApiResult.SUCCESS.setMessage(String.format("成功删除表%s%s%s!", hiveInfoDTO.getDatabaseName(), Constants.Symbol.POINT, hiveInfoDTO.getTableName()));
-			return ApiResult.SUCCESS;
+			final ApiResult<Object> successApiResult = ApiResult.initSuccess();
+			successApiResult.setMessage(String.format("成功删除表%s%s%s!", hiveInfoDTO.getDatabaseName(), Constants.Symbol.POINT, hiveInfoDTO.getTableName()));
+			return successApiResult;
 		} catch (Exception e) {
 			log.error("execute delete table error {}", e);
-			ApiResult.FAILURE.setMessage(String.format("删除表%s%s%s失败!", hiveInfoDTO.getDatabaseName(), Constants.Symbol.POINT, hiveInfoDTO.getTableName()));
-			ApiResult.FAILURE.setContent(e.getMessage());
-			return ApiResult.FAILURE;
+			final ApiResult<Object> failureApiResult = ApiResult.initFailure();
+			failureApiResult.setMessage(String.format("删除表%s%s%s失败!", hiveInfoDTO.getDatabaseName(), Constants.Symbol.POINT, hiveInfoDTO.getTableName()));
+			failureApiResult.setContent(e.getMessage());
+			return failureApiResult;
 		}
 	}
 
@@ -91,13 +97,15 @@ public class HiveServiceImpl implements HiveService {
 		final String sql = String.format("DROP DATABASE IF EXISTS %s", databaseName);
 		try {
 			jdbcTemplate.execute(sql);
-			ApiResult.SUCCESS.setMessage(String.format("成功删除数据库%s!", databaseName));
-			return ApiResult.SUCCESS;
+			final ApiResult<Object> successApiResult = ApiResult.initSuccess();
+			successApiResult.setMessage(String.format("成功删除数据库%s!", databaseName));
+			return successApiResult;
 		} catch (Exception e) {
 			log.error("execute delete database error {}", e);
-			ApiResult.FAILURE.setMessage(String.format("删除数据库%s失败!", databaseName));
-			ApiResult.FAILURE.setContent(e.getMessage());
-			return ApiResult.FAILURE;
+			final ApiResult<Object> failureApiResult = ApiResult.initFailure();
+			failureApiResult.setMessage(String.format("删除数据库%s失败!", databaseName));
+			failureApiResult.setContent(e.getMessage());
+			return failureApiResult;
 		}
 	}
 
