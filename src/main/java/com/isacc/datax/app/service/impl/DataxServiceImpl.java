@@ -87,7 +87,7 @@ public class DataxServiceImpl implements DataxService {
 				final ApiResult<Object> uploadFileApiResult = this.uploadFile(multipartFile, dataxProperties);
 				if (uploadFileApiResult.getResult()) {
 					// 远程执行python进行导数
-					return ApiResult.initSuccess();
+					return execCommand(dataxProperties, String.valueOf(uploadFileApiResult.getContent()));
 				} else {
 					return uploadFileApiResult;
 				}
@@ -97,6 +97,28 @@ public class DataxServiceImpl implements DataxService {
 		} else {
 			return jsonResult;
 		}
+	}
+
+	/**
+	 * 远程执行python
+	 *
+	 * @param dataxProperties DataxProperties
+	 * @param jsonFileName    json file name
+	 * @return com.isacc.datax.api.dto.ApiResult<java.lang.Object>
+	 * @author isacc 2019-05-07 10:06
+	 */
+	private ApiResult<Object> execCommand(DataxProperties dataxProperties, String jsonFileName) {
+		String command =
+				"source /etc/profile;" + dataxProperties.getHome() + "bin/datax.py " + dataxProperties.getUploadDicPath() + jsonFileName;
+		try (SftpUtil util = new SftpUtil()) {
+			util.connectServerUseExec(command, getDataxInfo(dataxProperties));
+		} catch (JSchException | IOException e) {
+			log.error("command execution failed,", e);
+			ApiResult.FAILURE.setResult(false);
+			ApiResult.FAILURE.setMessage(e.getMessage());
+			return ApiResult.FAILURE;
+		}
+		return ApiResult.initSuccess();
 	}
 
 	/**
@@ -143,7 +165,7 @@ public class DataxServiceImpl implements DataxService {
 		}
 		String fileName = file.getOriginalFilename();
 		try (SftpUtil util = new SftpUtil()) {
-			this.connectServer(dataxProperties, util);
+			util.connectServerUseSftp(getDataxInfo(dataxProperties));
 			util.uploadFile(dataxProperties.getUploadDicPath() + '/' + fileName, file.getInputStream());
 		} catch (Exception e) {
 			log.error("upload json file error,", e);
@@ -152,23 +174,25 @@ public class DataxServiceImpl implements DataxService {
 			ApiResult.FAILURE.setContent(e.getMessage());
 			return ApiResult.FAILURE;
 		}
+		ApiResult.SUCCESS.setContent(fileName);
 		return ApiResult.SUCCESS;
 	}
 
 	/**
-	 * 连接到datax服务器
+	 * 解析datax相关信息放入数组
 	 *
 	 * @param dataxProperties DataxProperties
-	 * @param util            SftpUtil
-	 * @author isacc 2019-05-05 20:02
+	 * @return java.lang.String[]
+	 * @author isacc 2019-05-07 10:21
 	 */
-	private void connectServer(DataxProperties dataxProperties, SftpUtil util) throws JSchException {
-		String userName = dataxProperties.getUsername();
+	private String[] getDataxInfo(DataxProperties dataxProperties) {
 		String ip = dataxProperties.getHost();
-		int port = Integer.parseInt(dataxProperties.getPort());
+		String port = dataxProperties.getPort();
+		String username = dataxProperties.getUsername();
 		String password = dataxProperties.getPassword();
-		util.connectServer(ip, port, userName, password);
+		return new String[]{ip, port, username, password};
 	}
+
 
 	/**
 	 * 生成datax json文件
@@ -247,7 +271,7 @@ public class DataxServiceImpl implements DataxService {
 			ApiResult.FAILURE.setMessage("datax doesn't have this writerMode: " + writerMode);
 			return ApiResult.FAILURE;
 		}
-		return ApiResult.SUCCESS;
+		return ApiResult.initSuccess();
 	}
 
 	/**
@@ -272,7 +296,7 @@ public class DataxServiceImpl implements DataxService {
 					.fileType(HdfsFileTypeEnum.valueOf(mysql2HiveDTO.getWriter().getFileType().toUpperCase()).getFileType())
 					.build());
 			log.info("create hive table:{}.{}", hiveDb, hiveTable);
-			return ApiResult.SUCCESS;
+			return ApiResult.initSuccess();
 		} catch (Exception e) {
 			ApiResult.FAILURE.setMessage("there are something went wrong in hive!");
 			ApiResult.FAILURE.setContent("error: " + e.getMessage());
@@ -299,7 +323,7 @@ public class DataxServiceImpl implements DataxService {
 			ApiResult.FAILURE.setMessage(String.format("datax supports only single-character field delimiter, which you configure as : [%s]", fieldDelimiter));
 			return ApiResult.FAILURE;
 		}
-		return ApiResult.SUCCESS;
+		return ApiResult.initSuccess();
 	}
 
 	/**
@@ -329,7 +353,7 @@ public class DataxServiceImpl implements DataxService {
 				// 存在hive数据库但不存在表，根据所选字段创建表
 				return this.createHiveTable(mysql2HiveDTO, hiveDb, hiveTable);
 			}
-			return ApiResult.SUCCESS;
+			return ApiResult.initSuccess();
 		}
 	}
 
@@ -370,7 +394,7 @@ public class DataxServiceImpl implements DataxService {
 			ApiResult.FAILURE.setContent("table not exist: " + notExistTables);
 			return ApiResult.FAILURE;
 		}
-		return ApiResult.SUCCESS;
+		return ApiResult.initSuccess();
 	}
 
 

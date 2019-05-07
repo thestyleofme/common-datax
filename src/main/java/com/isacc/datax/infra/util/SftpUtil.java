@@ -13,12 +13,12 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @author isacc 2019/04/09 16:17
  */
-@SuppressWarnings({"Duplicates", "UnusedReturnValue", "unused"})
+@SuppressWarnings("unused")
 @Slf4j
 public class SftpUtil implements AutoCloseable {
 
 	private Session session = null;
-	private ChannelSftp channel = null;
+	private ChannelSftp channelSftp = null;
 	private static final int TIMEOUT = 60000;
 	private static final String SPLIT_PATTERN = "/";
 	private static final String SFTP_SERVER_NOT_LOGIN = "sftp server not login";
@@ -27,18 +27,81 @@ public class SftpUtil implements AutoCloseable {
 	/**
 	 * 连接sftp服务器
 	 *
+	 * @param info 服务IP，端口，用户名，密码
+	 * @throws JSchException JSchException
+	 */
+	public void connectServerUseSftp(String... info)
+			throws JSchException {
+		final String serverIP = info[0];
+		final String username = info[2];
+		this.getSession(serverIP, Integer.parseInt(info[1]), username, info[3]);
+		// 打开SFTP通道
+		channelSftp = (ChannelSftp) session.openChannel("sftp");
+		// 建立SFTP通道的连接
+		channelSftp.connect();
+		log.info("Connected successfully to ip :{}, ftpUsername is :{}, return :{}", serverIP, username, channelSftp);
+	}
+
+	/**
+	 * 连接sftp服务器
+	 *
+	 * @param command 执行的命令
+	 * @param info    服务IP，端口，用户名，密码
+	 * @throws JSchException JSchException
+	 */
+	public void connectServerUseExec(String command, String... info)
+			throws JSchException, IOException {
+		final String serverIP = info[0];
+		final String username = info[2];
+		this.getSession(serverIP, Integer.parseInt(info[1]), username, info[3]);
+		// 打开SFTP通道
+		ChannelExec channelExec = (ChannelExec) session.openChannel("exec");
+		channelExec.setCommand(command);
+		channelExec.setInputStream(null);
+		channelExec.setErrStream(new PrintStream(new FileOutputStream(FileDescriptor.err)));
+		InputStream in = channelExec.getInputStream();
+		// 建立EXEC通道的连接
+		channelExec.connect();
+		log.info("Connected successfully to ip :{}, execUsername is :{}, return :{}", serverIP, username, channelExec);
+		byte[] tmp = new byte[1024];
+		while (true) {
+			while (in.available() > 0) {
+				int i = in.read(tmp, 0, 1024);
+				if (i < 0) {
+					break;
+				}
+				log.info(new String(tmp, 0, i));
+			}
+			if (channelExec.isClosed()) {
+				if (in.available() > 0) {
+					continue;
+				}
+				log.info("exit-status: " + channelExec.getExitStatus());
+				break;
+			}
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				log.warn("InterruptedException,", e);
+				Thread.currentThread().interrupt();
+			}
+		}
+	}
+
+	/**
+	 * 获取session
+	 *
 	 * @param serverIP 服务IP
 	 * @param port     端口
-	 * @param userName 用户名
+	 * @param username 用户名
 	 * @param password 密码
 	 * @throws JSchException JSchException
 	 */
-	public ChannelSftp connectServer(String serverIP, int port, String userName, String password)
-			throws JSchException {
+	private void getSession(String serverIP, int port, String username, String password) throws JSchException {
 		// 创建JSch对象
 		JSch jsch = new JSch();
 		// 根据用户名，主机ip，端口获取一个Session对象
-		session = jsch.getSession(userName, serverIP, port);
+		session = jsch.getSession(username, serverIP, port);
 		log.info("Session created...");
 		if (!Objects.isNull(password)) {
 			// 设置密码
@@ -53,12 +116,6 @@ public class SftpUtil implements AutoCloseable {
 		// 通过Session建立连接
 		session.connect();
 		log.info("Session connected, Opening Channel...");
-		// 打开SFTP通道
-		channel = (ChannelSftp) session.openChannel("sftp");
-		// 建立SFTP通道的连接
-		channel.connect();
-		log.info("Connected successfully to ip :{}, ftpUsername is :{}, return :{}", serverIP, userName, channel);
-		return channel;
 	}
 
 	/**
@@ -66,8 +123,8 @@ public class SftpUtil implements AutoCloseable {
 	 */
 	@Override
 	public void close() {
-		if (!Objects.isNull(channel)) {
-			channel.disconnect();
+		if (!Objects.isNull(channelSftp)) {
+			channelSftp.disconnect();
 		}
 		if (!Objects.isNull(session)) {
 			session.disconnect();
@@ -78,13 +135,12 @@ public class SftpUtil implements AutoCloseable {
 	 * @param path path
 	 * @return List<ChannelSftp.LsEntry>
 	 * @throws SftpException s
-	 * @author zhilong.deng@hand-china.com
 	 * @date 2018/7/16 21:57
 	 */
 	public List<ChannelSftp.LsEntry> getDirList(String path) throws SftpException {
 		List<ChannelSftp.LsEntry> list = new ArrayList<>();
-		if (channel != null) {
-			Vector vv = channel.ls(path);
+		if (channelSftp != null) {
+			Vector vv = channelSftp.ls(path);
 			if (vv == null || vv.isEmpty()) {
 				return list;
 			} else {
@@ -103,13 +159,12 @@ public class SftpUtil implements AutoCloseable {
 	 * @param suffix suffix
 	 * @return List<ChannelSftp.LsEntry>
 	 * @throws SftpException s
-	 * @author zhilong.deng@hand-china.com
 	 * @date 2018/7/16 21:57
 	 */
 	public List<ChannelSftp.LsEntry> getFiles(String path, String suffix) throws SftpException {
 		List<ChannelSftp.LsEntry> list = new ArrayList<>();
-		if (channel != null) {
-			channel.ls(path, lsEntry -> {
+		if (channelSftp != null) {
+			channelSftp.ls(path, lsEntry -> {
 				if (!lsEntry.getAttrs().isDir() && lsEntry.getFilename().endsWith(suffix)) {
 					list.add(lsEntry);
 				}
@@ -131,10 +186,10 @@ public class SftpUtil implements AutoCloseable {
 	public void downloadFile(String remotePathFile, String localPathFile)
 			throws SftpException, IOException {
 		try (FileOutputStream os = new FileOutputStream(new File(localPathFile))) {
-			if (Objects.isNull(channel)) {
+			if (Objects.isNull(channelSftp)) {
 				throw new IOException(SFTP_SERVER_NOT_LOGIN);
 			}
-			channel.get(remotePathFile, os);
+			channelSftp.get(remotePathFile, os);
 		}
 	}
 
@@ -144,7 +199,7 @@ public class SftpUtil implements AutoCloseable {
 	 * @throws SftpException SftpException
 	 */
 	public InputStream getFileInputStream(String pathFile) throws SftpException {
-		return channel.get(pathFile);
+		return channelSftp.get(pathFile);
 	}
 
 	/**
@@ -158,10 +213,10 @@ public class SftpUtil implements AutoCloseable {
 	public void uploadFileWithStr(String remoteFile, String localFile)
 			throws SftpException, IOException {
 		try (FileInputStream in = new FileInputStream(new File(localFile))) {
-			if (Objects.isNull(channel)) {
+			if (Objects.isNull(channelSftp)) {
 				throw new IOException(SFTP_SERVER_NOT_LOGIN);
 			}
-			channel.put(in, remoteFile);
+			channelSftp.put(in, remoteFile);
 		}
 	}
 
@@ -174,10 +229,10 @@ public class SftpUtil implements AutoCloseable {
 	 * @throws IOException   i
 	 */
 	public void uploadFile(String remoteFile, InputStream in) throws SftpException, IOException {
-		if (Objects.isNull(channel)) {
+		if (Objects.isNull(channelSftp)) {
 			throw new IOException(SFTP_SERVER_NOT_LOGIN);
 		}
-		channel.put(in, remoteFile);
+		channelSftp.put(in, remoteFile);
 	}
 
 	/**
@@ -189,10 +244,10 @@ public class SftpUtil implements AutoCloseable {
 	 * @throws IOException   IOException
 	 */
 	public Long getFileSize(String filePath) throws SftpException, IOException {
-		if (Objects.isNull(channel)) {
+		if (Objects.isNull(channelSftp)) {
 			throw new IOException(SFTP_SERVER_NOT_LOGIN);
 		}
-		return channel.lstat(filePath).getSize();
+		return channelSftp.lstat(filePath).getSize();
 	}
 
 	/**
@@ -204,10 +259,10 @@ public class SftpUtil implements AutoCloseable {
 	 * @throws IOException   IOException
 	 */
 	public void rename(String sourcePath, String targetPath) throws SftpException, IOException {
-		if (Objects.isNull(channel)) {
+		if (Objects.isNull(channelSftp)) {
 			throw new IOException(SFTP_SERVER_NOT_LOGIN);
 		}
-		channel.rename(sourcePath, targetPath);
+		channelSftp.rename(sourcePath, targetPath);
 	}
 
 	/**
@@ -217,12 +272,12 @@ public class SftpUtil implements AutoCloseable {
 	 * @throws IOException IOException
 	 */
 	public void remove(String filePath) throws IOException {
-		if (Objects.isNull(channel)) {
+		if (Objects.isNull(channelSftp)) {
 			throw new IOException(SFTP_SERVER_NOT_LOGIN);
 		}
 		try {
-			channel.rename(filePath, filePath + ".bak");
-			channel.rm(filePath);
+			channelSftp.rename(filePath, filePath + ".bak");
+			channelSftp.rm(filePath);
 		} catch (SftpException e) {
 			log.error("文件不存在", e);
 		}
@@ -239,15 +294,15 @@ public class SftpUtil implements AutoCloseable {
 	public synchronized void mkdir(String path, String dir) throws SftpException, IOException {
 		StringBuilder builder = new StringBuilder();
 		builder.append(path);
-		if (Objects.isNull(channel)) {
+		if (Objects.isNull(channelSftp)) {
 			throw new IOException(SFTP_SERVER_NOT_LOGIN);
 		}
 		for (String d : dir.split(SPLIT_PATTERN)) {
 			builder.append(SPLIT_PATTERN).append(d);
 			try {
-				channel.ls(builder.toString());
+				channelSftp.ls(builder.toString());
 			} catch (SftpException e) {
-				channel.mkdir(builder.toString());
+				channelSftp.mkdir(builder.toString());
 			}
 		}
 	}

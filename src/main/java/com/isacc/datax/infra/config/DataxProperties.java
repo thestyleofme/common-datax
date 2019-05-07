@@ -20,6 +20,10 @@ public class DataxProperties {
 
 	public static final String PROPERTY_PREFIX = "datax";
 	/**
+	 * datax home
+	 */
+	private String home;
+	/**
 	 * datax server host
 	 */
 	private String host;
@@ -50,12 +54,14 @@ public class DataxProperties {
 
 	private Mysql2Hive mysql2Hive;
 
+	@SuppressWarnings("WeakerAccess")
 	@Data
-	public static class Mysql2Hive{
+	public static class Mysql2Hive {
 		/**
 		 * 增量导入freemarker模板文件
 		 */
 		private String whereTemplate;
+
 	}
 
 }

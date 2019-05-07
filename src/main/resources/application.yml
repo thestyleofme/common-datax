@@ -52,12 +52,14 @@ mybatis:
     mapUnderscoreToCamelCase: true
 
 datax:
-  basePackagePath: /templates
+  home: /usr/local/DataX/target/datax/datax/
   host: datax01
   port: 22
-  username: root
-  password: tse@9527
-  uploadDicPath: /home/hadoop/datax
+  # 要操作hdfs，用户要有权限
+  username: hadoop
+  password: hadoop
+  basePackagePath: /templates/
+  uploadDicPath: /home/hadoop/datax/
   localDicPath: src/main/resources/datax/
   mysql2hive:
     whereTemplate: mysql2hive_where.ftl
