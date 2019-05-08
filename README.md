@@ -68,6 +68,52 @@
 	}
 }
 ```
+> hive2hive example
+
+```
+{
+	"setting": {
+		"speed": {
+			"channel": 3
+		}
+	},
+	"reader": {
+		"name": "hdfsreader",
+		"path": "/user/hive/warehouse/test.db/userinfo",
+		"defaultFS": "hdfs://hadoop04:9000",
+		"column": [{
+				"type": "long",
+				"index": 0
+			},
+			{
+				"type": "string",
+				"index": 1
+			}
+		],
+		"fileType": "text",
+		"encoding": "UTF-8",
+		"fieldDelimiter": "\\t"
+	},
+	"writer": {
+		"name": "hdfswriter",
+		"defaultFS": "hdfs://hadoop04:9000",
+		"fileType": "text",
+		"path": "/user/hive/warehouse/test.db/userinfo_temp",
+		"fileName": "userinfo_temp",
+		"column": [{
+				"name": "id",
+				"type": "BIGINT"
+			},
+			{
+				"name": "username",
+				"type": "STRING"
+			}
+		],
+		"writeMode": "append",
+		"fieldDelimiter": "\\t"
+	}
+}
+```
 
 ---
 
@@ -79,6 +125,5 @@
 - 配置文件属性加密，配置使用环境变量形式
 - 数据源，mysql、hive的数据源维护，下次要导数时，不用传那么多服务器信息
 - groovy脚本
-- message统一维护
 
 ---
