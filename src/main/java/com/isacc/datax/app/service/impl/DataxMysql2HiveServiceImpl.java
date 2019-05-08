@@ -1,6 +1,5 @@
 package com.isacc.datax.app.service.impl;
 
-import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -15,12 +14,9 @@ import com.isacc.datax.domain.entity.reader.hdfsreader.HdfsFileTypeEnum;
 import com.isacc.datax.domain.entity.reader.mysqlreader.MysqlReaderConnection;
 import com.isacc.datax.infra.config.DataxProperties;
 import com.isacc.datax.infra.mapper.MysqlSimpleMapper;
-import com.isacc.datax.infra.util.DataxUtil;
-import com.isacc.datax.infra.util.FreemarkerUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  * <p>
@@ -45,7 +41,6 @@ public class DataxMysql2HiveServiceImpl extends BaseServiceImpl implements Datax
         this.dataxProperties = dataxProperties;
     }
 
-    @SuppressWarnings("Duplicates")
     @Override
     public ApiResult<Object> mysql2HiveWhere(Mysql2HiveDTO mysql2HiveDTO) {
         // 判断mysql的数据库/表是否存在，无则报错返回
@@ -53,40 +48,23 @@ public class DataxMysql2HiveServiceImpl extends BaseServiceImpl implements Datax
         if (!mysqlApiResult.getResult()) {
             return mysqlApiResult;
         }
-        // 检验fileType fieldDelimiter(单字符)
-        if (!this.checkHiveTableInfo(mysql2HiveDTO).getResult()) {
-            return this.checkHiveTableInfo(mysql2HiveDTO);
+        // 检验fileType fieldDelimiter(单字符) writeMode
+        final ApiResult<Object> checkApiResult = this.checkHdfsParams(
+                new String[]{mysql2HiveDTO.getWriter().getFileType()},
+                mysql2HiveDTO.getWriter().getFieldDelimiter(),
+                mysql2HiveDTO.getWriter().getWriteMode());
+        if (!checkApiResult.getResult()) {
+            return checkApiResult;
         }
         // 判断hive的数据库/表是否存在，无则创建库表
         final ApiResult<Object> hiveApiResult = this.hiveDbAndTblIsExist(mysql2HiveDTO);
         if (!hiveApiResult.getResult()) {
             return hiveApiResult;
         }
-        // 校验writeMode
-        final ApiResult<Object> writeModeApiResult = DataxUtil.checkWriteMode(mysql2HiveDTO.getWriter().getWriteMode());
-        if (!writeModeApiResult.getResult()) {
-            return writeModeApiResult;
-        }
-        // 创建datax job json文件
-        final String whereTemplate = dataxProperties.getMysql2Hive().getWhereTemplate();
-        final ApiResult<Object> jsonResult = FreemarkerUtil.createJsonFile(generateDataModel(mysql2HiveDTO), dataxProperties, whereTemplate);
-        if (!jsonResult.getResult()) {
-            return jsonResult;
-        }
-        final File jsonFile = (File) jsonResult.getContent();
-        // file转为MultipartFile
-        final ApiResult<Object> file2MultiApiResult = this.file2MultipartFile(jsonFile);
-        if (!file2MultiApiResult.getResult()) {
-            return file2MultiApiResult;
-        }
-        final MultipartFile multipartFile = (MultipartFile) file2MultipartFile(jsonFile).getContent();
-        // 上传到datax服务器
-        final ApiResult<Object> uploadFileApiResult = this.uploadFile(multipartFile, dataxProperties);
-        if (!uploadFileApiResult.getResult()) {
-            return uploadFileApiResult;
-        }
-        // 远程执行python进行导数
-        return execCommand(dataxProperties, String.valueOf(uploadFileApiResult.getContent()));
+        // 开始导数
+        final String whereTemplate = dataxProperties.getMysql2Hive().getNoDtWhereTemplate();
+        final Map<String, Object> dataModel = generateDataModel(mysql2HiveDTO);
+        return this.afterCheckOperations(dataModel, dataxProperties, whereTemplate);
     }
 
     /**
@@ -118,55 +96,6 @@ public class DataxMysql2HiveServiceImpl extends BaseServiceImpl implements Datax
     }
 
     /**
-     * 创建hive数据表
-     *
-     * @param mysql2HiveDTO Mysql2HiveDTO
-     * @param hiveDb        hive数据库
-     * @param hiveTable     hive表
-     * @return com.isacc.datax.api.dto.ApiResult<java.lang.Object>
-     * @author isacc 2019-05-02 4:31
-     */
-    private ApiResult<Object> createHiveTable(Mysql2HiveDTO mysql2HiveDTO, String hiveDb, String hiveTable) {
-        try {
-            hiveService.createTable(HiveInfoDTO.builder().
-                    databaseName(hiveDb).
-                    tableName(hiveTable).
-                    columns(mysql2HiveDTO.getWriter().getColumn())
-                    .fieldDelimiter(mysql2HiveDTO.getWriter().getFieldDelimiter())
-                    .fileType(HdfsFileTypeEnum.valueOf(mysql2HiveDTO.getWriter().getFileType().toUpperCase()).getFileType())
-                    .build());
-            log.info("create hive table:{}.{}", hiveDb, hiveTable);
-            return ApiResult.initSuccess();
-        } catch (Exception e) {
-            final ApiResult<Object> failureApiResult = ApiResult.initFailure();
-            failureApiResult.setMessage("there are something went wrong in hive!");
-            failureApiResult.setContent("error: " + e.getMessage());
-            return failureApiResult;
-        }
-    }
-
-    /**
-     * 检验fileType fieldDelimiter(单字符)
-     *
-     * @param mysql2HiveDTO Mysql2HiveDTO
-     * @return com.isacc.datax.api.dto.ApiResult<java.lang.Object>
-     * @author isacc 2019-05-02 3:44
-     */
-    private ApiResult<Object> checkHiveTableInfo(Mysql2HiveDTO mysql2HiveDTO) {
-        @NotBlank String fileType = mysql2HiveDTO.getWriter().getFileType();
-        final ApiResult<Object> checkHdfsFileTypeApiResult = DataxUtil.checkHdfsFileType(fileType);
-        if (!checkHdfsFileTypeApiResult.getResult()) {
-            return checkHdfsFileTypeApiResult;
-        }
-        @NotBlank String fieldDelimiter = mysql2HiveDTO.getWriter().getFieldDelimiter();
-        final ApiResult<Object> checkFieldDelimiterApiResult = DataxUtil.checkFieldDelimiter(fieldDelimiter);
-        if (!checkFieldDelimiterApiResult.getResult()) {
-            return checkFieldDelimiterApiResult;
-        }
-        return ApiResult.initSuccess();
-    }
-
-    /**
      * 校验hive的数据库、表是否存在
      *
      * @param mysql2HiveDTO Mysql2HiveDTO
@@ -177,7 +106,7 @@ public class DataxMysql2HiveServiceImpl extends BaseServiceImpl implements Datax
         @NotBlank String path = mysql2HiveDTO.getWriter().getPath();
         String hivePath = path.substring(0, path.lastIndexOf('/'));
         String hiveDbName = hivePath.substring(hivePath.lastIndexOf('/') + 1, hivePath.indexOf('.'));
-        String hiveTblName = path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('?') == -1 ? path.length() : path.lastIndexOf('?'));
+        String hiveTblName = path.substring(path.lastIndexOf('/') + 1);
         final Map<String, Object> hiveDbInfoMap = mysqlSimpleMapper.hiveDbIsExist(hiveDbName);
         if (Objects.isNull(hiveDbInfoMap)) {
             // 不存在hive数据库，先创建库，再根据所选字段创建表
@@ -187,7 +116,13 @@ public class DataxMysql2HiveServiceImpl extends BaseServiceImpl implements Datax
             }
         }
         // 存在hive数据库但不存在表，根据所选字段创建表
-        return this.createHiveTable(mysql2HiveDTO, hiveDbName, hiveTblName);
+        return hiveService.createTable(HiveInfoDTO.builder().
+                databaseName(hiveDbName).
+                tableName(hiveTblName).
+                columns(mysql2HiveDTO.getWriter().getColumn())
+                .fieldDelimiter(mysql2HiveDTO.getWriter().getFieldDelimiter())
+                .fileType(HdfsFileTypeEnum.valueOf(mysql2HiveDTO.getWriter().getFileType().toUpperCase()).getFileType())
+                .build());
     }
 
     /**

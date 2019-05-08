@@ -3,6 +3,8 @@ package com.isacc.datax.app.service.impl;
 import com.isacc.datax.api.dto.ApiResult;
 import com.isacc.datax.app.service.BaseService;
 import com.isacc.datax.infra.config.DataxProperties;
+import com.isacc.datax.infra.util.DataxUtil;
+import com.isacc.datax.infra.util.FreemarkerUtil;
 import com.isacc.datax.infra.util.SftpUtil;
 import com.jcraft.jsch.JSchException;
 import lombok.extern.slf4j.Slf4j;
@@ -17,12 +19,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Map;
 
 /**
  * description
  *
  * @author HP_USER 2019/05/07 23:26
  */
+@SuppressWarnings("WeakerAccess")
 @Service
 @Slf4j
 public class BaseServiceImpl implements BaseService {
@@ -105,5 +109,63 @@ public class BaseServiceImpl implements BaseService {
         return successApiResult;
     }
 
+    /**
+     * 开始导数的一系列操作
+     *
+     * @param dataModel       Map<String, Object>
+     * @param dataxProperties DataxProperties
+     * @param templateName    templateName
+     * @return com.isacc.datax.api.dto.ApiResult<java.lang.Object>
+     * @author isacc 2019-05-08 9:23
+     */
+    protected ApiResult<Object> afterCheckOperations(Map<String, Object> dataModel, DataxProperties dataxProperties, String templateName) {
+        // 使用freemarker创建datax job json文件
+        final ApiResult<Object> jsonResult = FreemarkerUtil.createJsonFile(dataModel, dataxProperties, templateName);
+        if (!jsonResult.getResult()) {
+            return jsonResult;
+        }
+        final File jsonFile = (File) jsonResult.getContent();
+        // file转为MultipartFile
+        final ApiResult<Object> file2MultiApiResult = this.file2MultipartFile(jsonFile);
+        if (!file2MultiApiResult.getResult()) {
+            return file2MultiApiResult;
+        }
+        final MultipartFile multipartFile = (MultipartFile) file2MultipartFile(jsonFile).getContent();
+        // 上传到datax服务器
+        final ApiResult<Object> uploadFileApiResult = this.uploadFile(multipartFile, dataxProperties);
+        if (!uploadFileApiResult.getResult()) {
+            return uploadFileApiResult;
+        }
+        // 远程执行python进行导数
+        return execCommand(dataxProperties, String.valueOf(uploadFileApiResult.getContent()));
+    }
+
+    /**
+     * 检验hdfsreader/hdfswriter中fileType，fieldDelimiter，writeMode参数
+     *
+     * @param fileTypes       fileTypes
+     * @param fieldDelimiter fieldDelimiter
+     * @param writeMode       writeMode
+     * @return com.isacc.datax.api.dto.ApiResult<java.lang.Object>
+     * @author isacc 2019-05-08 9:29
+     */
+    protected ApiResult<Object> checkHdfsParams(String[] fileTypes, String fieldDelimiter, String writeMode) {
+        // fileType
+        final ApiResult<Object> checkReaderHdfsFileTypeApiResult = DataxUtil.checkHdfsFileType(fileTypes);
+        if (!checkReaderHdfsFileTypeApiResult.getResult()) {
+            return checkReaderHdfsFileTypeApiResult;
+        }
+        // fieldDelimiter
+        final ApiResult<Object> checkReaderFieldDelimiterApiResult = DataxUtil.checkFieldDelimiter(fieldDelimiter);
+        if (!checkReaderFieldDelimiterApiResult.getResult()) {
+            return checkReaderFieldDelimiterApiResult;
+        }
+        // writeMode
+        final ApiResult<Object> writeModeApiResult = DataxUtil.checkWriteMode(writeMode);
+        if (!writeModeApiResult.getResult()) {
+            return writeModeApiResult;
+        }
+        return ApiResult.initSuccess();
+    }
 
 }

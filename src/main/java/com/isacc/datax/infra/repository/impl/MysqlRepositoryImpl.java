@@ -8,6 +8,7 @@ import javax.validation.constraints.NotBlank;
 import com.isacc.datax.api.dto.ApiResult;
 import com.isacc.datax.api.dto.Hive2HiveDTO;
 import com.isacc.datax.domain.repository.MysqlRepository;
+import com.isacc.datax.infra.constant.Constants;
 import com.isacc.datax.infra.mapper.MysqlSimpleMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +27,6 @@ import org.springframework.stereotype.Component;
 public class MysqlRepositoryImpl implements MysqlRepository {
 
     private final MysqlSimpleMapper mysqlSimpleMapper;
-
-    private static final String DB_IS_NOT_EXIST = "DB_IS_NOT_EXIST";
-    private static final String TBL_IS_NOT_EXIST = "TBL_IS_NOT_EXIST";
 
     @Autowired
     public MysqlRepositoryImpl(MysqlSimpleMapper mysqlSimpleMapper) {
@@ -65,7 +63,7 @@ public class MysqlRepositoryImpl implements MysqlRepository {
         if (Objects.isNull(hiveDbInfoMap)) {
             final ApiResult<Object> failureApiResult = ApiResult.initFailure();
             failureApiResult.setMessage(String.format("path路径错误，不存在该hive数据库：%s!", hiveDbName));
-            map.put("errorType", DB_IS_NOT_EXIST);
+            map.put("errorType", Constants.DB_IS_NOT_EXIST);
             failureApiResult.setContent(map);
             return failureApiResult;
         }
@@ -74,7 +72,7 @@ public class MysqlRepositoryImpl implements MysqlRepository {
         if (Objects.isNull(hiveTblInfoMap)) {
             final ApiResult<Object> failureApiResult = ApiResult.initFailure();
             failureApiResult.setMessage(String.format("path路径错误，%s数据库下不存在表：%s!", hiveDbName, hiveTblName));
-            map.put("errorType", TBL_IS_NOT_EXIST);
+            map.put("errorType", Constants.TBL_IS_NOT_EXIST);
             failureApiResult.setContent(map);
             return failureApiResult;
         }

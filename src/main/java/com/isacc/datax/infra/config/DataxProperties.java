@@ -62,7 +62,7 @@ public class DataxProperties {
         /**
          * mysql2hive的freemarker模板文件名称，使用where
          */
-        private String whereTemplate;
+        private String noDtWhereTemplate;
     }
 
     @SuppressWarnings("WeakerAccess")

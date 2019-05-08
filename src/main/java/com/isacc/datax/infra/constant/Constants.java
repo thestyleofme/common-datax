@@ -32,6 +32,8 @@ public interface Constants {
 	String DEFAULT_ENV = "dev";
 	ObjectMapper MAPPER = new ObjectMapper();
 	String DEFAULT_CROWN_CODE = "+86";
+	String DB_IS_NOT_EXIST = "DB_IS_NOT_EXIST";
+	String TBL_IS_NOT_EXIST = "TBL_IS_NOT_EXIST";
 
 	public interface Symbol {
 		String SIGH = "!";

@@ -30,26 +30,22 @@ public class DataxUtil {
         return ApiResult.initSuccess();
     }
 
-    public static ApiResult<Object> checkFieldDelimiter(String... fieldDelimiters) {
-        for (String fieldDelimiter : fieldDelimiters) {
-            final int length = fieldDelimiter.replace(Constants.Symbol.BACKSLASH, "").replace(Constants.Symbol.SLASH, "").length();
-            if (length != 1) {
-                final ApiResult<Object> failureApiResult = ApiResult.initFailure();
-                failureApiResult.setMessage(String.format("datax supports only single-character field delimiter, which you configure as : [%s]", fieldDelimiter));
-                return failureApiResult;
-            }
+    public static ApiResult<Object> checkFieldDelimiter(String fieldDelimiter) {
+        final int length = fieldDelimiter.replace(Constants.Symbol.BACKSLASH, "").replace(Constants.Symbol.SLASH, "").length();
+        if (length != 1) {
+            final ApiResult<Object> failureApiResult = ApiResult.initFailure();
+            failureApiResult.setMessage(String.format("datax supports only single-character field delimiter, which you configure as : [%s]", fieldDelimiter));
+            return failureApiResult;
         }
         return ApiResult.initSuccess();
     }
 
-    public static ApiResult<Object> checkWriteMode(String... writeModes){
-        for (String writeMode : writeModes) {
-            List<HdfsWriterModeEnum> writeModeInfo = Arrays.stream(HdfsWriterModeEnum.values()).filter(hdfsWriterModeEnum -> writeMode.equalsIgnoreCase(hdfsWriterModeEnum.getWriteMode())).collect(Collectors.toList());
-            if (writeModeInfo.isEmpty()) {
-                final ApiResult<Object> failureApiResult = ApiResult.initFailure();
-                failureApiResult.setMessage("datax doesn't have this writerMode: " + writeMode);
-                return failureApiResult;
-            }
+    public static ApiResult<Object> checkWriteMode(String writeMode) {
+        List<HdfsWriterModeEnum> writeModeInfo = Arrays.stream(HdfsWriterModeEnum.values()).filter(hdfsWriterModeEnum -> writeMode.equalsIgnoreCase(hdfsWriterModeEnum.getWriteMode())).collect(Collectors.toList());
+        if (writeModeInfo.isEmpty()) {
+            final ApiResult<Object> failureApiResult = ApiResult.initFailure();
+            failureApiResult.setMessage("datax doesn't have this writerMode: " + writeMode);
+            return failureApiResult;
         }
         return ApiResult.initSuccess();
     }
