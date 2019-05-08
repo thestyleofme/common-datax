@@ -14,12 +14,28 @@
 - **自动创建json文件**
 - **自动python执行job**
 
+### done:
+- mysql到hive的通用数据抽取，暂不支持Hive分区
+- hive到hive的通用数据抽取，暂不支持Hive分区
+
+### todo:
+- 主要是hive，mysql之间的导数，支持分区，还有csv导入等
+- 创表记录导数的历史
+- 配置文件属性加密，配置使用环境变量形式
+- json文件下载
+- 定时调度等
+- 优化，使用Redis缓存mysql/hive的所有库表
+- swagger
+- 数据源，mysql、hive的数据源维护，下次要导数时，不用传那么多服务器信息
+- groovy脚本
 ---
 
 ### 示例
 >  mysql2hive example
-
-> POST请求 http://localhost:10024/datax/mysql-hive-where
+>
+> POST http://localhost:10024/datax/mysql-hive-where 
+> 
+> Body示例
 
 ```
 {
@@ -71,8 +87,10 @@
 }
 ```
 > hive2hive example
-
-> POST请求 http://localhost:10024/datax/hive-hive
+>
+> POST http://localhost:10024/datax/hive-hive
+> 
+> Body示例
 ```
 {
 	"setting": {
@@ -117,18 +135,3 @@
 	}
 }
 ```
-
----
-
-### todo:
-- 主要是hive，mysql之间的导数，支持分区，还有csv导入等
-- 创表记录导数的历史
-- 配置文件属性加密，配置使用环境变量形式
-- json文件下载
-- 定时调度等
-- 优化，使用Redis缓存mysql/hive的所有库表
-- swagger
-- 数据源，mysql、hive的数据源维护，下次要导数时，不用传那么多服务器信息
-- groovy脚本
-
----
