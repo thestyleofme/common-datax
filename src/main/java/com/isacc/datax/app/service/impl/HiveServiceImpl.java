@@ -53,7 +53,7 @@ public class HiveServiceImpl implements HiveService {
         } catch (Exception e) {
             log.error("execute create table error: ", e);
             final ApiResult<Object> failureApiResult = ApiResult.initFailure();
-            failureApiResult.setMessage(String.format("创建表%ss失败!", hiveInfoDTO.getTableName()));
+            failureApiResult.setMessage(String.format("创建表%s失败!", hiveInfoDTO.getTableName()));
             log.error("create hive table: " + hiveInfoDTO.getTableName() + "error!");
             failureApiResult.setContent(e.getMessage());
             return failureApiResult;

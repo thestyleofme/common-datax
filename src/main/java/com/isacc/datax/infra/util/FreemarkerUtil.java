@@ -23,6 +23,10 @@ import org.apache.commons.io.output.FileWriterWithEncoding;
 @Slf4j
 public class FreemarkerUtil {
 
+    private FreemarkerUtil() {
+        throw new IllegalStateException("Utility class");
+    }
+
     private static Configuration getConfiguration(String basePackagePath) {
         Configuration cfg = new Configuration(Configuration.VERSION_2_3_28);
         cfg.setClassForTemplateLoading(DataxApplication.class, basePackagePath);
