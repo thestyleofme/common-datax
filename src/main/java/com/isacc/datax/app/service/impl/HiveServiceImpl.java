@@ -70,7 +70,7 @@ public class HiveServiceImpl implements HiveService {
             log.info("create hive database: " + databaseName);
             return successApiResult;
         } catch (Exception e) {
-            log.error("execute create hive database error {}", e);
+            log.error("execute create hive database error", e);
             final ApiResult<Object> failureApiResult = ApiResult.initFailure();
             failureApiResult.setMessage(String.format("创建数据库%s失败!", databaseName));
             log.error("create hive database:  " + databaseName + "error!");
@@ -88,7 +88,7 @@ public class HiveServiceImpl implements HiveService {
             successApiResult.setMessage(String.format("成功删除表%s%s%s!", hiveInfoDTO.getDatabaseName(), Constants.Symbol.POINT, hiveInfoDTO.getTableName()));
             return successApiResult;
         } catch (Exception e) {
-            log.error("execute delete hive table error {}", e);
+            log.error("execute delete hive table error", e);
             final ApiResult<Object> failureApiResult = ApiResult.initFailure();
             failureApiResult.setMessage(String.format("删除表%s%s%s失败!", hiveInfoDTO.getDatabaseName(), Constants.Symbol.POINT, hiveInfoDTO.getTableName()));
             failureApiResult.setContent(e.getMessage());
@@ -106,7 +106,7 @@ public class HiveServiceImpl implements HiveService {
             log.info("delete hive database: " + databaseName);
             return successApiResult;
         } catch (Exception e) {
-            log.error("execute delete hive database error {}", e);
+            log.error("execute delete hive database error", e);
             final ApiResult<Object> failureApiResult = ApiResult.initFailure();
             failureApiResult.setMessage(String.format("删除数据库%s失败!", databaseName));
             failureApiResult.setContent(e.getMessage());
