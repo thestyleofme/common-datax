@@ -16,8 +16,8 @@ import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfigura
 @MapperScan("com.isacc.datax.infra.mapper")
 public class DataxApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(DataxApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(DataxApplication.class, args);
+    }
 
 }

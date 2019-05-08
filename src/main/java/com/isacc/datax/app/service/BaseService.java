@@ -1,10 +1,10 @@
 package com.isacc.datax.app.service;
 
+import java.io.File;
+
 import com.isacc.datax.api.dto.ApiResult;
 import com.isacc.datax.infra.config.DataxProperties;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
 
 /**
  * <p>

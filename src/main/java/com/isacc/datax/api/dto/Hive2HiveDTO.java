@@ -20,12 +20,12 @@ import lombok.*;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Hive2HiveDTO extends BaseDatax {
-	/**
-	 * DataX HdfsReader
-	 */
-	private HdfsReader reader;
-	/**
-	 * DataX HdfsWriter
-	 */
-	private HdfsWriter writer;
+    /**
+     * DataX HdfsReader
+     */
+    private HdfsReader reader;
+    /**
+     * DataX HdfsWriter
+     */
+    private HdfsWriter writer;
 }

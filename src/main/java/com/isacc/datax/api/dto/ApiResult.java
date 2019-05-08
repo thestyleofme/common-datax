@@ -19,34 +19,34 @@ import org.apache.http.HttpStatus;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResult<T> {
 
-	/**
-	 * 返回给前台的状态码
-	 */
-	private Integer code;
-	/**
-	 * 请求是否成功
-	 */
-	private Boolean result;
-	/**
-	 * 返回给前台的信息
-	 */
-	private String message;
-	/**
-	 * 返回给前台的数据
-	 */
-	private T content;
+    /**
+     * 返回给前台的状态码
+     */
+    private Integer code;
+    /**
+     * 请求是否成功
+     */
+    private Boolean result;
+    /**
+     * 返回给前台的信息
+     */
+    private String message;
+    /**
+     * 返回给前台的数据
+     */
+    private T content;
 
-	private ApiResult(Integer code, Boolean result) {
-		this.code = code;
-		this.result = result;
-	}
+    private ApiResult(Integer code, Boolean result) {
+        this.code = code;
+        this.result = result;
+    }
 
-	public static ApiResult<Object> initSuccess() {
-		return new ApiResult<>(HttpStatus.SC_OK, true);
-	}
+    public static ApiResult<Object> initSuccess() {
+        return new ApiResult<>(HttpStatus.SC_OK, true);
+    }
 
-	public static ApiResult<Object> initFailure() {
-		return new ApiResult<>(HttpStatus.SC_INTERNAL_SERVER_ERROR, false);
-	}
+    public static ApiResult<Object> initFailure() {
+        return new ApiResult<>(HttpStatus.SC_INTERNAL_SERVER_ERROR, false);
+    }
 
 }

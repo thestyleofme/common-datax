@@ -19,23 +19,23 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/datax")
 public class DataxController {
 
-	private final DataxMysql2HiveService mysql2HiveService;
-	private final DataxHive2HiveService hive2HiveService;
+    private final DataxMysql2HiveService mysql2HiveService;
+    private final DataxHive2HiveService hive2HiveService;
 
-	@Autowired
-	public DataxController(DataxMysql2HiveService mysql2HiveService, DataxHive2HiveService hive2HiveService) {
-		this.mysql2HiveService = mysql2HiveService;
-		this.hive2HiveService = hive2HiveService;
-	}
+    @Autowired
+    public DataxController(DataxMysql2HiveService mysql2HiveService, DataxHive2HiveService hive2HiveService) {
+        this.mysql2HiveService = mysql2HiveService;
+        this.hive2HiveService = hive2HiveService;
+    }
 
-	@PostMapping("/mysql-hive-where")
-	public ApiResult<Object> mysql2HiveWhere(@RequestBody Mysql2HiveDTO mysql2HiveDTO) {
-		return mysql2HiveService.mysql2HiveWhere(mysql2HiveDTO);
-	}
+    @PostMapping("/mysql-hive-where")
+    public ApiResult<Object> mysql2HiveWhere(@RequestBody Mysql2HiveDTO mysql2HiveDTO) {
+        return mysql2HiveService.mysql2HiveWhere(mysql2HiveDTO);
+    }
 
-	@PostMapping("/hive-hive")
-	public ApiResult<Object> hive2Hive(@RequestBody Hive2HiveDTO hive2HiveDTO) {
-		return hive2HiveService.hive2hive(hive2HiveDTO);
-	}
+    @PostMapping("/hive-hive")
+    public ApiResult<Object> hive2Hive(@RequestBody Hive2HiveDTO hive2HiveDTO) {
+        return hive2HiveService.hive2hive(hive2HiveDTO);
+    }
 
 }

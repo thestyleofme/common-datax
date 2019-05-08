@@ -1,5 +1,11 @@
 package com.isacc.datax.app.service.impl;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Map;
+
 import com.isacc.datax.api.dto.ApiResult;
 import com.isacc.datax.app.service.BaseService;
 import com.isacc.datax.infra.config.DataxProperties;
@@ -14,12 +20,6 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Map;
 
 /**
  * description
@@ -143,9 +143,9 @@ public class BaseServiceImpl implements BaseService {
     /**
      * 检验hdfsreader/hdfswriter中fileType，fieldDelimiter，writeMode参数
      *
-     * @param fileTypes       fileTypes
+     * @param fileTypes      fileTypes
      * @param fieldDelimiter fieldDelimiter
-     * @param writeMode       writeMode
+     * @param writeMode      writeMode
      * @return com.isacc.datax.api.dto.ApiResult<java.lang.Object>
      * @author isacc 2019-05-08 9:29
      */

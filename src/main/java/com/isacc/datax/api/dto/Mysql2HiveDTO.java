@@ -21,13 +21,13 @@ import lombok.*;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Mysql2HiveDTO extends BaseDatax {
 
-	/**
-	 * DataX MysqlReader
-	 */
-	private MysqlReader reader;
-	/**
-	 * DataX HdfsWriter
-	 */
-	private HdfsWriter writer;
+    /**
+     * DataX MysqlReader
+     */
+    private MysqlReader reader;
+    /**
+     * DataX HdfsWriter
+     */
+    private HdfsWriter writer;
 
 }

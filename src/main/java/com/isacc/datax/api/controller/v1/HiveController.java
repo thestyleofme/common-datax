@@ -19,33 +19,33 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/hive")
 public class HiveController {
 
-	private final HiveService hiveService;
+    private final HiveService hiveService;
 
-	@Autowired
-	public HiveController(HiveService hiveService) {
-		this.hiveService = hiveService;
-	}
+    @Autowired
+    public HiveController(HiveService hiveService) {
+        this.hiveService = hiveService;
+    }
 
 
-	@PostMapping("/table")
-	public ApiResult<Object> createTable(@RequestBody HiveInfoDTO hiveInfoDTO) {
-		return hiveService.createTable(hiveInfoDTO);
-	}
+    @PostMapping("/table")
+    public ApiResult<Object> createTable(@RequestBody HiveInfoDTO hiveInfoDTO) {
+        return hiveService.createTable(hiveInfoDTO);
+    }
 
-	@DeleteMapping("/table")
-	public ApiResult<Object> deleteTable(@RequestBody HiveInfoDTO hiveInfoDTO) {
-		return hiveService.deleteTable(hiveInfoDTO);
-	}
+    @DeleteMapping("/table")
+    public ApiResult<Object> deleteTable(@RequestBody HiveInfoDTO hiveInfoDTO) {
+        return hiveService.deleteTable(hiveInfoDTO);
+    }
 
-	@GetMapping("/database")
-	public ApiResult<Object> createTable(@NotNull String databaseName) {
-		return hiveService.createDatabase(databaseName);
-	}
+    @GetMapping("/database")
+    public ApiResult<Object> createTable(@NotNull String databaseName) {
+        return hiveService.createDatabase(databaseName);
+    }
 
-	@DeleteMapping("/database")
-	public ApiResult<Object> deleteDatabase(@NotNull String databaseName) {
-		return hiveService.deleteDatabase(databaseName);
-	}
+    @DeleteMapping("/database")
+    public ApiResult<Object> deleteDatabase(@NotNull String databaseName) {
+        return hiveService.deleteDatabase(databaseName);
+    }
 
 
 }
