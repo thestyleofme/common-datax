@@ -18,6 +18,10 @@ import com.isacc.datax.infra.constant.Constants;
  */
 public class DataxUtil {
 
+    private DataxUtil() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static ApiResult<Object> checkHdfsFileType(String... fileTypes) {
         for (String fileType : fileTypes) {
             List<HdfsFileTypeEnum> fileTypeInfo = Arrays.stream(HdfsFileTypeEnum.values()).filter(hdfsFileTypeEnum -> fileType.equalsIgnoreCase(hdfsFileTypeEnum.name())).collect(Collectors.toList());

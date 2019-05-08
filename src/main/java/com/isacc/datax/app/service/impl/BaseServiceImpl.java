@@ -95,18 +95,15 @@ public class BaseServiceImpl implements BaseService {
 
     @Override
     public ApiResult<Object> execCommand(DataxProperties dataxProperties, String jsonFileName) {
-        final ApiResult<Object> successApiResult = ApiResult.initSuccess();
         String command = "source /etc/profile;" + dataxProperties.getHome() + "bin/datax.py " + dataxProperties.getUploadDicPath() + jsonFileName;
         try (SftpUtil util = new SftpUtil()) {
-            util.connectServerUseExec(command, getDataxInfo(dataxProperties));
+            return util.connectServerUseExec(command, getDataxInfo(dataxProperties));
         } catch (JSchException | IOException e) {
             log.error("command execution failed,", e);
             final ApiResult<Object> failureApiResult = ApiResult.initFailure();
             failureApiResult.setMessage(e.getMessage());
             return failureApiResult;
         }
-        successApiResult.setMessage("执行成功！");
-        return successApiResult;
     }
 
     /**
