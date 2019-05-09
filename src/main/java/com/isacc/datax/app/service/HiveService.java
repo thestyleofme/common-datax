@@ -35,7 +35,7 @@ public interface HiveService {
      *
      * @param hiveInfoDTO HiveInfoDTO
      * @return com.isacc.datax.api.dto.ApiResult<java.lang.Object>
-     * @author HP_USER 2019/5/9 14:24
+     * @author isacc 2019/5/9 14:24
      */
     ApiResult<Object> addPartition(HiveInfoDTO hiveInfoDTO);
 

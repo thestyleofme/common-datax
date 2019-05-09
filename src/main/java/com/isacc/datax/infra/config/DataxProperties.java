@@ -62,7 +62,7 @@ public class DataxProperties {
         /**
          * mysql2hive的freemarker模板文件名称，使用where
          */
-        private String noDtWhereTemplate;
+        private String whereTemplate;
     }
 
     @SuppressWarnings("WeakerAccess")
@@ -72,6 +72,6 @@ public class DataxProperties {
         /**
          * hive2hive的freemarker模板文件名称，未使用分区
          */
-        private String noDtTemplate;
+        private String template;
     }
 }

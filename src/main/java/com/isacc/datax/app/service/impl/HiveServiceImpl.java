@@ -96,7 +96,10 @@ public class HiveServiceImpl implements HiveService {
     public ApiResult<Object> addPartition(HiveInfoDTO hiveInfoDTO) {
         List<HivePartition> partitionList = hiveInfoDTO.getPartitionList();
         StringBuilder sb = new StringBuilder();
-        partitionList.forEach(partition -> sb.append(partition.getName()).append(Constants.Symbol.EQUAL).append(partition.getValue()).append(Constants.Symbol.COMMA));
+        partitionList.forEach(partition -> sb.append(partition.getName()).
+                append(Constants.Symbol.EQUAL).
+                append(Constants.Symbol.SINGLE_QUOTE).append(partition.getValue()).append(Constants.Symbol.SINGLE_QUOTE).
+                append(Constants.Symbol.COMMA));
         final String partitionInfoSql = sb.toString().substring(0, sb.toString().length() - 1);
         final String sql = String.format("ALTER TABLE `%s.%s` ADD PARTITION(%s)",
                 hiveInfoDTO.getDatabaseName(), hiveInfoDTO.getTableName(), partitionInfoSql

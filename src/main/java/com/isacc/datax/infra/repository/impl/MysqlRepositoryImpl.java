@@ -7,9 +7,11 @@ import javax.validation.constraints.NotBlank;
 
 import com.isacc.datax.api.dto.ApiResult;
 import com.isacc.datax.api.dto.Hive2HiveDTO;
+import com.isacc.datax.api.dto.HiveInfoDTO;
 import com.isacc.datax.domain.repository.MysqlRepository;
 import com.isacc.datax.infra.constant.Constants;
 import com.isacc.datax.infra.mapper.MysqlSimpleMapper;
+import com.isacc.datax.infra.util.DataxUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -53,10 +55,10 @@ public class MysqlRepositoryImpl implements MysqlRepository {
     }
 
     private ApiResult<Object> justCheckHiveDbAndTbl(String path) {
-        String hivePath = path.substring(0, path.lastIndexOf('/'));
-        String hiveDbName = hivePath.substring(hivePath.lastIndexOf('/') + 1, hivePath.indexOf('.'));
+        HiveInfoDTO hiveInfo = (HiveInfoDTO) DataxUtil.getHiveInfoFromPath(path).getContent();
+        String hiveDbName = hiveInfo.getDatabaseName();
+        String hiveTblName = hiveInfo.getTableName();
         final Map<String, Object> hiveDbInfoMap = mysqlSimpleMapper.hiveDbIsExist(hiveDbName);
-        String hiveTblName = path.substring(path.lastIndexOf('/') + 1);
         final HashMap<String, Object> map = new HashMap<>(3);
         map.put("hiveDbName", hiveDbName);
         map.put("hiveTblName", hiveTblName);

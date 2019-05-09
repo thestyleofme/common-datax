@@ -63,7 +63,7 @@ datax:
   uploadDicPath: /home/hadoop/datax/
   localDicPath: src/main/resources/datax/
   mysql2hive:
-    noDtWhereTemplate: mysql2hive_where_without_dt.ftl
+    whereTemplate: mysql2hive_where.ftl
   hive2hive:
-    noDtTemplate: hive2hive_without_dt.ftl
+    template: hive2hive.ftl
 
