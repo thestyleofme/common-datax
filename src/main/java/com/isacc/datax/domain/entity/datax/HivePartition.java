@@ -21,7 +21,8 @@ public class HivePartition {
     /**
      * 分区类型
      */
-    private String type;
+    @Builder.Default
+    private String type = "STRING";
     /**
      * 分区名称
      */

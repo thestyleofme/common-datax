@@ -98,8 +98,7 @@ public class DataxUtil {
             Matcher matcher = compileEqual.matcher(path);
             HivePartition partition;
             while (matcher.find()) {
-                // TODO: 默认创表这里是STRING.
-                partition = HivePartition.builder().type("STRING").build();
+                partition = HivePartition.builder().build();
                 String before = path.substring(0, matcher.start());
                 String partitionName = before.substring(before.lastIndexOf('/') + 1);
                 partition.setName(partitionName);
