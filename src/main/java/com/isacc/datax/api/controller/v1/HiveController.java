@@ -32,6 +32,12 @@ public class HiveController {
         return hiveService.createTable(hiveInfoDTO);
     }
 
+    @PostMapping("table/partition")
+    public ApiResult<Object> addPartition(@RequestBody HiveInfoDTO hiveInfoDTO) {
+        return hiveService.addPartition(hiveInfoDTO);
+    }
+
+
     @DeleteMapping("/table")
     public ApiResult<Object> deleteTable(@RequestBody HiveInfoDTO hiveInfoDTO) {
         return hiveService.deleteTable(hiveInfoDTO);

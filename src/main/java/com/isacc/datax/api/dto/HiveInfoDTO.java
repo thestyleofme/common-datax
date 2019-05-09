@@ -3,6 +3,7 @@ package com.isacc.datax.api.dto;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.isacc.datax.domain.entity.datax.HivePartition;
 import com.isacc.datax.domain.entity.reader.hdfsreader.HdfsColumn;
 import lombok.*;
 
@@ -11,7 +12,7 @@ import lombok.*;
  * Hive信息
  * </p>
  *
- * @author ISACC 2019/04/28 19:33
+ * @author isacc 2019/04/28 19:33
  */
 @Builder
 @Data
@@ -41,5 +42,8 @@ public class HiveInfoDTO {
      * 文件的类型，目前只支持用户配置为"text"、"orc"、"rc"、"seq"、"csv"
      */
     private String fileType;
-
+    /**
+     * 分区值
+     */
+    private List<HivePartition> partitionList;
 }
