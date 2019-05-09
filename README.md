@@ -15,8 +15,8 @@
 - **自动python执行job**
 
 ### done:
-- mysql到hive的通用数据抽取，暂不支持Hive分区
-- hive到hive的通用数据抽取，暂不支持Hive分区
+- mysql到hive的通用数据抽取，支持导入到Hive分区
+- hive到hive的通用数据抽取，支持Hive分区
 
 ### todo:
 - 主要是hive，mysql之间的导数，支持分区，还有csv导入等
@@ -30,8 +30,9 @@
 - groovy脚本
 ---
 
-### 示例
->  mysql2hive example
+## 示例
+### 1. mysql2hive example
+这里是mysql数据导入到hive，支持分区
 >
 > POST http://localhost:10024/datax/mysql-hive-where 
 > 
@@ -86,8 +87,16 @@
 	}
 }
 ```
-> hive2hive example
->
+> path可以更换为分区的hdfs路径，不需提前创建分区，自动创建，例如：
+
+```
+"path": "/user/hive/warehouse/test.db/userinfo_dts/dt1=A1/dt2=B2"
+```
+> 这里会在hive里自动创建userinfo_dts分区表，有两个分区字段，然后会将数据导入到这里的dt1=A1,dt2=B2分区下
+---
+
+### 2. hive2hive example
+这里是将hive里userinfo这张表导入到一张hive分区表中
 > POST http://localhost:10024/datax/hive-hive
 > 
 > Body示例
@@ -119,8 +128,8 @@
 		"name": "hdfswriter",
 		"defaultFS": "hdfs://hadoop04:9000",
 		"fileType": "text",
-		"path": "/user/hive/warehouse/test.db/userinfo_temp",
-		"fileName": "userinfo_temp",
+		"path": "/user/hive/warehouse/test.db/userinfo_temp_dts/dt1=A1/dt2=B1",
+		"fileName": "userinfo_temp_dts",
 		"column": [{
 				"name": "id",
 				"type": "BIGINT"
