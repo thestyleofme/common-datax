@@ -33,6 +33,11 @@ public class DataxController {
         return mysql2HiveService.mysql2HiveWhere(mysql2HiveDTO);
     }
 
+    @PostMapping("/mysql-hive-sql")
+    public ApiResult<Object> mysql2HiveQuerySql(@RequestBody Mysql2HiveDTO mysql2HiveDTO) {
+        return mysql2HiveService.mysql2HiveQuerySql(mysql2HiveDTO);
+    }
+
     @PostMapping("/hive-hive")
     public ApiResult<Object> hive2Hive(@RequestBody Hive2HiveDTO hive2HiveDTO) {
         return hive2HiveService.hive2hive(hive2HiveDTO);

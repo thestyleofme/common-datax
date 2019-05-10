@@ -48,12 +48,12 @@
             "path": "${path}",
             "fileName": "${fileName}",
             "column": [
-            <#list hdfsColumn as column>
-              {
-              "name": "${column.name}",
-              "type": "${column.type}"
-              }<#if column_has_next>,</#if>
-            </#list>
+<#list hdfsColumn as column>
+    {
+    "name": "${column.name}",
+    "type": "${column.type}"
+    }<#if column_has_next>,</#if>
+</#list>
             ],
             "writeMode": "${writeMode}",
             "fieldDelimiter": "${fieldDelimiter}"

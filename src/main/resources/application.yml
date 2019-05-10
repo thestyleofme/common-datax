@@ -61,9 +61,9 @@ datax:
   password: hadoop
   basePackagePath: /templates/
   uploadDicPath: /home/hadoop/datax/
-  localDicPath: src/main/resources/datax/
+  localDicPath: src/main/datax/
   mysql2hive:
     whereTemplate: mysql2hive_where.ftl
+    querySqlTemplate: mysql2hive_querySql.ftl
   hive2hive:
     template: hive2hive.ftl
-

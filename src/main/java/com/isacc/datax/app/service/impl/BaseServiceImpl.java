@@ -115,7 +115,7 @@ public class BaseServiceImpl implements BaseService {
      * @return com.isacc.datax.api.dto.ApiResult<java.lang.Object>
      * @author isacc 2019-05-08 9:23
      */
-    protected ApiResult<Object> afterCheckOperations(Map<String, Object> dataModel, DataxProperties dataxProperties, String templateName) {
+    protected ApiResult<Object> startDataExtraction(Map<String, Object> dataModel, DataxProperties dataxProperties, String templateName) {
         // 使用freemarker创建datax job json文件
         final ApiResult<Object> jsonResult = FreemarkerUtil.createJsonFile(dataModel, dataxProperties, templateName);
         if (!jsonResult.getResult()) {

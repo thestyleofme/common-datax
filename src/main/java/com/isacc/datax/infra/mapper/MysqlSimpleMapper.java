@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.isacc.datax.domain.entity.reader.hdfsreader.HdfsColumn;
 import org.apache.ibatis.annotations.ResultType;
 import org.apache.ibatis.annotations.Select;
 
@@ -28,6 +29,65 @@ public interface MysqlSimpleMapper {
     @Select("SELECT COUNT(*) FROM information_schema.SCHEMATA " +
             "WHERE SCHEMA_NAME = #{databaseName}")
     Integer mysqlDbIsExist(String databaseName);
+
+    /**
+     * 根据mysql数据库和表名查询表字段相关信息
+     *
+     * @param databaseName Mysql数据库名称
+     * @param tableName    Mysql表名称
+     * @return java.util.List<java.util.Map < java.lang.String, java.lang.Object>>
+     * @author isacc 2019/5/10 14:33
+     */
+    @Select("SELECT COLUMN_NAME, ORDINAL_POSITION, DATA_TYPE, COLUMN_TYPE " +
+            "FROM information_schema. COLUMNS " +
+            "WHERE " +
+            "TABLE_SCHEMA = #{databaseName} AND TABLE_NAME = #{tableName}")
+    List<Map<String, Object>> mysqlTableColumnInfo(String databaseName, String tableName);
+
+    /**
+     * mysql表字段映射hive表字段
+     *
+     * @param databaseName Mysql数据库名称
+     * @param tableName    Mysql表名称
+     * @return java.util.List<java.util.Map < java.lang.String, java.lang.Object>>
+     * @author isacc 2019/5/10 14:33
+     */
+    @Select("SELECT " +
+            "column_name name, " +
+            "CASE " +
+            "WHEN NUMERIC_PRECISION IS NOT NULL " +
+            "AND (" +
+            "data_type = 'decimal' " +
+            "OR data_type = 'numeric' " +
+            ") THEN " +
+            "concat( " +
+            "'decimal(', " +
+            "NUMERIC_PRECISION, " +
+            "',', " +
+            "NUMERIC_SCALE, " +
+            "')' " +
+            ") " +
+            "WHEN (" +
+            "CHARACTER_MAXIMUM_LENGTH IS NOT NULL " +
+            "OR data_type = 'uniqueidentifier' " +
+            ") " +
+            "AND data_type NOT LIKE '%text%' THEN " +
+            "'string' " +
+            "WHEN data_type = 'datetime' THEN " +
+            "'timestamp' " +
+            "WHEN data_type = 'money' THEN " +
+            "'decimal(9,2)' " +
+            "WHEN data_type = 'tinyint' THEN " +
+            "'int' " +
+            "ELSE " +
+            "data_type " +
+            "END AS type " +
+            "FROM " +
+            "information_schema. COLUMNS " +
+            "WHERE " +
+            "table_schema = #{databaseName} " +
+            "AND table_name = #{tableName}")
+    List<HdfsColumn> mysqlColumn2HiveColumn(String databaseName, String tableName);
 
     /**
      * 判断指定数据库下指定表是否存在

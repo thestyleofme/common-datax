@@ -69,7 +69,7 @@ public class DataxHive2HiveServiceImpl extends BaseServiceImpl implements DataxH
         // 开始导数
         final String template = dataxProperties.getHive2Hive().getTemplate();
         final Map<String, Object> dataModel = generateDataModel(hive2HiveDTO);
-        return this.afterCheckOperations(dataModel, dataxProperties, template);
+        return this.startDataExtraction(dataModel, dataxProperties, template);
     }
 
     /**

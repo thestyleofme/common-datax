@@ -21,5 +21,13 @@ public interface DataxMysql2HiveService {
      */
     ApiResult<Object> mysql2HiveWhere(Mysql2HiveDTO mysql2HiveDTO);
 
+    /**
+     * Mysql自定义SQL导数到Hive
+     *
+     * @param mysql2HiveDTO Mysql2HiveDTO
+     * @return com.isacc.datax.api.dto.ApiResult<java.lang.Object>
+     * @author isacc 2019/5/10 10:09
+     */
+    ApiResult<Object> mysql2HiveQuerySql(Mysql2HiveDTO mysql2HiveDTO);
 
 }

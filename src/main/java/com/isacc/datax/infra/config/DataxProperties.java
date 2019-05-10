@@ -63,6 +63,10 @@ public class DataxProperties {
          * mysql2hive的freemarker模板文件名称，使用where
          */
         private String whereTemplate;
+        /**
+         * mysql2hive的freemarker模板文件名称，使用自定义SQL
+         */
+        private String querySqlTemplate;
     }
 
     @SuppressWarnings("WeakerAccess")
@@ -70,7 +74,7 @@ public class DataxProperties {
     public static class Hive2Hive {
 
         /**
-         * hive2hive的freemarker模板文件名称，未使用分区
+         * hive2hive的freemarker模板文件名称
          */
         private String template;
     }

@@ -82,12 +82,6 @@ public class SftpUtil implements AutoCloseable {
                 log.info("exit-status: " + exitStatus);
                 break;
             }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                log.warn("InterruptedException,", e);
-                Thread.currentThread().interrupt();
-            }
         }
         String execLog = sb.toString();
         log.info(execLog);
