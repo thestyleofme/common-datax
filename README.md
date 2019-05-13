@@ -17,18 +17,18 @@
 ### done:
 - mysql到hive的通用数据抽取，支持导入到Hive分区
 - hive到hive的通用数据抽取，支持Hive分区
+- 本地csv文件导入到hive，支持分区
 
 ### todo:
-- 主要是hive，mysql之间的导数，支持分区，csv导入，自定义SQL导入等
+- 主要是hive，mysql之间的导数，支持分区，还有csv导入等
 - 创表记录导数的历史
 - 配置文件属性加密，配置使用环境变量形式
 - json文件下载
-- 定时调度等
+- Azkaban定时调度等
 - 优化，使用Redis缓存mysql/hive的所有库表
 - swagger
 - 数据源，mysql、hive的数据源维护，下次要导数时，不用传那么多服务器信息
 - groovy脚本
-- RSA
 ---
 
 ## 示例
@@ -97,7 +97,7 @@
 ---
 
 ### 2. hive2hive example
-这里是将hive里userinfo这张表导入到一张hive分区表中
+##### 1. 这里是将hive里userinfo这张表导入到一张hive分区表中
 > POST http://localhost:10024/datax/hive-hive
 > 
 > Body示例
@@ -145,3 +145,53 @@
 	}
 }
 ```
+##### 2. csv导入到hive表示例
+> POST http://localhost:10024/datax/hive-hive?source=C:/test/userinfo_csv.csv
+>
+> Body示例
+
+```
+{
+	"setting": {
+		"speed": {
+			"channel": 3
+		}
+	},
+	"reader": {
+		"name": "hdfsreader",
+		"path": "/user/hive/warehouse/test/userinfo_csv/userinfo_csv.csv",
+		"defaultFS": "hdfs://hadoop04:9000",
+		"column": [{
+				"type": "long",
+				"index": 0
+			},
+			{
+				"type": "string",
+				"index": 1
+			}
+		],
+		"fileType": "csv",
+		"encoding": "UTF-8",
+		"fieldDelimiter": ","
+	},
+	"writer": {
+		"name": "hdfswriter",
+		"defaultFS": "hdfs://hadoop04:9000",
+		"fileType": "text",
+		"path": "/user/hive/warehouse/test.db/userinfo_csv",
+		"fileName": "userinfo_csv",
+		"column": [{
+				"name": "id",
+				"type": "BIGINT"
+			},
+			{
+				"name": "username",
+				"type": "STRING"
+			}
+		],
+		"writeMode": "append",
+		"fieldDelimiter": ","
+	}
+}
+```
+
