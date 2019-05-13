@@ -2,7 +2,7 @@
   "job": {
     "setting": {
       "speed": {
-        "channel": ${setting.speed.channel}
+        "channel": ${(setting.speed.channel)!"3"}
       }
     },
     "content": [
