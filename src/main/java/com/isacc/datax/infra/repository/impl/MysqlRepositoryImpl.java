@@ -36,13 +36,19 @@ public class MysqlRepositoryImpl implements MysqlRepository {
     }
 
     @Override
-    public ApiResult<Object> hiveDbAndTableIsExist(Hive2HiveDTO hive2HiveDTO) {
+    public ApiResult<Object> checkHiveDbAndTable(Hive2HiveDTO hive2HiveDTO) {
         // reader
         @NotBlank final String readerPath = hive2HiveDTO.getReader().getPath();
         final ApiResult<Object> readerApiResult = this.justCheckHiveDbAndTbl(readerPath);
         if (!readerApiResult.getResult()) {
             return readerApiResult;
         }
+        // writer
+        return checkWriterHiveDbAndTable(hive2HiveDTO);
+    }
+
+    @Override
+    public ApiResult<Object> checkWriterHiveDbAndTable(Hive2HiveDTO hive2HiveDTO) {
         // writer
         @NotBlank final String writerPath = hive2HiveDTO.getWriter().getPath();
         final ApiResult<Object> writerApiResult = this.justCheckHiveDbAndTbl(writerPath);

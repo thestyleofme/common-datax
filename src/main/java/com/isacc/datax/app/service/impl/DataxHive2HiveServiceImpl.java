@@ -18,6 +18,7 @@ import com.isacc.datax.domain.repository.MysqlRepository;
 import com.isacc.datax.infra.config.DataxProperties;
 import com.isacc.datax.infra.constant.Constants;
 import com.isacc.datax.infra.util.DataxUtil;
+import com.isacc.datax.infra.util.HdfsUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,10 +47,26 @@ public class DataxHive2HiveServiceImpl extends BaseServiceImpl implements DataxH
 
 
     @Override
-    public ApiResult<Object> hive2hive(Hive2HiveDTO hive2HiveDTO) {
-        // 校验reader中hive库/表是否存在，不存在则返回
-        // 校验writer中的库/表是否存在，不存在则创建
-        final ApiResult<Object> hiveDbAndTableIsExistApiResult = mysqlRepository.hiveDbAndTableIsExist(hive2HiveDTO);
+    public ApiResult<Object> hive2hive(Hive2HiveDTO hive2HiveDTO, String source) {
+        // 判断是否是csv导入
+        final ApiResult<Object> hiveDbAndTableIsExistApiResult;
+        if (!HdfsFileTypeEnum.CSV.getFileType().equalsIgnoreCase(hive2HiveDTO.getReader().getFileType())) {
+            // 不是csv 校验reader中hive库/表是否存在，不存在则返回
+            // 不是csv 校验writer中的库/表是否存在，不存在则创建
+            hiveDbAndTableIsExistApiResult = mysqlRepository.checkHiveDbAndTable(hive2HiveDTO);
+        } else {
+            // 是csv,先上传csv到hdfs
+            @NotBlank String readerPath = hive2HiveDTO.getReader().getPath();
+            ApiResult<Object> uploadApiResult = HdfsUtil.upload(hive2HiveDTO.getReader().getDefaultFS(),
+                    dataxProperties.getUsername(),
+                    source,
+                    readerPath.substring(0, readerPath.lastIndexOf('/')));
+            if (!uploadApiResult.getResult()) {
+                return uploadApiResult;
+            }
+            // writer进行创库创表
+            hiveDbAndTableIsExistApiResult = mysqlRepository.checkWriterHiveDbAndTable(hive2HiveDTO);
+        }
         if (!hiveDbAndTableIsExistApiResult.getResult()) {
             return hiveDbAndTableIsExistApiResult;
         } else {

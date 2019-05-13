@@ -39,8 +39,8 @@ public class DataxController {
     }
 
     @PostMapping("/hive-hive")
-    public ApiResult<Object> hive2Hive(@RequestBody Hive2HiveDTO hive2HiveDTO) {
-        return hive2HiveService.hive2hive(hive2HiveDTO);
+    public ApiResult<Object> hive2Hive(@RequestBody Hive2HiveDTO hive2HiveDTO, String source) {
+        return hive2HiveService.hive2hive(hive2HiveDTO, source);
     }
 
 }
