@@ -1,8 +1,5 @@
 package com.isacc.datax.app.service.impl;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotBlank;
@@ -26,7 +23,6 @@ import com.isacc.datax.infra.mapper.MysqlSimpleMapper;
 import com.isacc.datax.infra.util.DataxUtil;
 import com.isacc.datax.infra.util.ZipUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -63,48 +59,16 @@ public class DataxMysql2HiveServiceImpl extends BaseServiceImpl implements Datax
         if (!checkApiResult.getResult()) {
             return checkApiResult;
         }
-        // 生成json文件，上传到datax服务器
+        // 生成json文件，上传到datax服务器，azkaban进行调度
         MysqlInfo mysqlInfo = (MysqlInfo) checkApiResult.getContent();
         final String whereTemplate = dataxProperties.getMysql2Hive().getWhereTemplate();
         final Map<String, Object> dataModel = generateDataModelWhere(mysql2HiveDTO, mysqlInfo);
-        ApiResult<Object> uploadResult = this.startDataExtraction(dataModel, dataxProperties, whereTemplate);
-        if (!uploadResult.getResult()) {
-            return uploadResult;
+        ApiResult<Object> dataExtractionResult = this.startDataExtraction(dataModel, dataxProperties, whereTemplate, azkabanProperties);
+        if (!dataExtractionResult.getResult()) {
+            return dataExtractionResult;
         }
-        // azkaban进行调度
-        String fileName = String.valueOf(uploadResult.getContent());
-        String dataxParamProperties = azkabanProperties.getLocalDicPath() + azkabanProperties.getDataxProperties();
-        // 生成dataxParams.properties
-        Properties properties = new Properties();
-        try (FileOutputStream fos = new FileOutputStream(dataxParamProperties)) {
-            properties.setProperty("DATAX_HOME", dataxProperties.getHome());
-            properties.setProperty("DATAX_UPLOAD_DIC", dataxProperties.getUploadDicPath());
-            properties.setProperty("DATAX_JSON_FILE_NAME", fileName);
-            properties.store(fos, "datax properties");
-        } catch (IOException e) {
-            ApiResult<Object> failureResult = ApiResult.initFailure();
-            log.error("dataxParams.properties生成失败！", e);
-            failureResult.setMessage("IOException: " + e.getMessage());
-            return failureResult;
-        }
-        // 压缩dataxParams.properties和json file
-        ArrayList<File> files = new ArrayList<>();
-        files.add(new File(dataxParamProperties));
-        files.add(new File(azkabanProperties.getDataxJob()));
-        try (FileOutputStream zipOut = new FileOutputStream(azkabanProperties.getLocalDicPath() + "dataxJob.zip")) {
-            ZipUtils.toZip(files, zipOut);
-            // 压缩过后删除dataxParams.properties
-            FileUtils.deleteQuietly(new File(dataxParamProperties));
-        } catch (IOException e) {
-            ApiResult<Object> failureResult = ApiResult.initFailure();
-            log.error("dataxJob.zip generate error！", e);
-            failureResult.setMessage("IOException: " + e.getMessage());
-            return failureResult;
-        }
-        // azkaban操作
-        return azkabanService.executeDataxJob(ZipUtils.generateFileName("dataxJob"),
-                "datax job",
-                azkabanProperties.getLocalDicPath() + ZipUtils.generateFileName("dataxJob") + ".zip");
+        return azkabanService.executeDataxJob(ZipUtils.generateFileName(), ZipUtils.generateFileName(),
+                azkabanProperties.getLocalDicPath() + ZipUtils.generateFileName() + ".zip");
     }
 
     @Override
@@ -117,7 +81,12 @@ public class DataxMysql2HiveServiceImpl extends BaseServiceImpl implements Datax
         MysqlInfo mysqlInfo = (MysqlInfo) checkApiResult.getContent();
         final String querySqlTemplate = dataxProperties.getMysql2Hive().getQuerySqlTemplate();
         final Map<String, Object> dataModel = generateDataModelQuerySql(mysql2HiveDTO, mysqlInfo);
-        return this.startDataExtraction(dataModel, dataxProperties, querySqlTemplate);
+        ApiResult<Object> dataExtractionResult = this.startDataExtraction(dataModel, dataxProperties, querySqlTemplate, azkabanProperties);
+        if (!dataExtractionResult.getResult()) {
+            return dataExtractionResult;
+        }
+        return azkabanService.executeDataxJob(ZipUtils.generateFileName(), ZipUtils.generateFileName(),
+                azkabanProperties.getLocalDicPath() + ZipUtils.generateFileName() + ".zip");
     }
 
     /**

@@ -1,22 +1,24 @@
 package com.isacc.datax.app.service.impl;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.Properties;
 
 import com.isacc.datax.api.dto.ApiResult;
 import com.isacc.datax.app.service.BaseService;
+import com.isacc.datax.infra.config.AzkabanProperties;
 import com.isacc.datax.infra.config.DataxProperties;
 import com.isacc.datax.infra.util.DataxUtil;
 import com.isacc.datax.infra.util.FreemarkerUtil;
 import com.isacc.datax.infra.util.SftpUtil;
+import com.isacc.datax.infra.util.ZipUtils;
 import com.jcraft.jsch.JSchException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
@@ -109,13 +111,14 @@ public class BaseServiceImpl implements BaseService {
     /**
      * 开始导数的一系列操作
      *
-     * @param dataModel       Map<String, Object>
-     * @param dataxProperties DataxProperties
-     * @param templateName    templateName
+     * @param dataModel         Map<String, Object>
+     * @param dataxProperties   DataxProperties
+     * @param templateName      templateName
+     * @param azkabanProperties AzkabanProperties
      * @return com.isacc.datax.api.dto.ApiResult<java.lang.Object>
      * @author isacc 2019-05-08 9:23
      */
-    protected ApiResult<Object> startDataExtraction(Map<String, Object> dataModel, DataxProperties dataxProperties, String templateName) {
+    protected ApiResult<Object> startDataExtraction(Map<String, Object> dataModel, DataxProperties dataxProperties, String templateName, AzkabanProperties azkabanProperties) {
         // 使用freemarker创建datax job json文件
         final ApiResult<Object> jsonResult = FreemarkerUtil.createJsonFile(dataModel, dataxProperties, templateName);
         if (!jsonResult.getResult()) {
@@ -129,7 +132,41 @@ public class BaseServiceImpl implements BaseService {
         }
         final MultipartFile multipartFile = (MultipartFile) file2MultipartFile(jsonFile).getContent();
         // 上传到datax服务器
-        return this.uploadFile(multipartFile, dataxProperties);
+        ApiResult<Object> uploadResult = this.uploadFile(multipartFile, dataxProperties);
+        if (!uploadResult.getResult()) {
+            return uploadResult;
+        }
+        // azkaban进行调度
+        String fileName = String.valueOf(uploadResult.getContent());
+        String dataxParamProperties = azkabanProperties.getLocalDicPath() + azkabanProperties.getDataxProperties();
+        // 生成dataxParams.properties
+        Properties properties = new Properties();
+        try (FileOutputStream fos = new FileOutputStream(dataxParamProperties)) {
+            properties.setProperty("DATAX_HOME", dataxProperties.getHome());
+            properties.setProperty("DATAX_UPLOAD_DIC", dataxProperties.getUploadDicPath());
+            properties.setProperty("DATAX_JSON_FILE_NAME", fileName);
+            properties.store(fos, "datax properties");
+        } catch (IOException e) {
+            ApiResult<Object> failureResult = ApiResult.initFailure();
+            log.error("dataxParams.properties generate error！", e);
+            failureResult.setMessage("IOException: " + e.getMessage());
+            return failureResult;
+        }
+        // 压缩dataxParams.properties和json file
+        ArrayList<File> files = new ArrayList<>();
+        files.add(new File(dataxParamProperties));
+        files.add(new File(azkabanProperties.getDataxJob()));
+        try (FileOutputStream zipOut = new FileOutputStream(azkabanProperties.getLocalDicPath() + "dataxJob.zip")) {
+            ZipUtils.toZip(files, zipOut);
+            // 压缩过后删除dataxParams.properties
+            FileUtils.deleteQuietly(new File(dataxParamProperties));
+        } catch (IOException e) {
+            ApiResult<Object> failureResult = ApiResult.initFailure();
+            log.error("dataxJob.zip generate error！", e);
+            failureResult.setMessage("IOException: " + e.getMessage());
+            return failureResult;
+        }
+        return ApiResult.initSuccess();
     }
 
     /**

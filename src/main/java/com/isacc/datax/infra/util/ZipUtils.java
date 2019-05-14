@@ -43,11 +43,11 @@ public class ZipUtils {
         }
     }
 
-    public static String generateFileName(String name) {
+    public static String generateFileName() {
         final LocalDateTime now = LocalDateTime.now();
         final String localDate = now.toLocalDate().toString();
         final String localTime = now.toLocalTime().toString().replace(':', '-').replace('.', '-');
-        return name + "-" + localDate + "-" + localTime;
+        return "dataxJob" + "-" + localDate + "-" + localTime;
     }
 
 }
