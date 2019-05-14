@@ -52,4 +52,6 @@ public interface BaseService {
      */
     ApiResult<Object> execCommand(DataxProperties dataxProperties, String jsonFileName);
 
+//    ApiResult<Object> execByAzkaban();
+
 }

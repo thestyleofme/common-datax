@@ -1,5 +1,8 @@
 package com.isacc.datax.app.service.impl;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import javax.validation.constraints.NotBlank;
@@ -8,6 +11,7 @@ import javax.validation.constraints.NotEmpty;
 import com.isacc.datax.api.dto.ApiResult;
 import com.isacc.datax.api.dto.HiveInfoDTO;
 import com.isacc.datax.api.dto.Mysql2HiveDTO;
+import com.isacc.datax.app.service.AzkabanService;
 import com.isacc.datax.app.service.DataxMysql2HiveService;
 import com.isacc.datax.app.service.HiveService;
 import com.isacc.datax.domain.entity.datax.HivePartition;
@@ -15,11 +19,14 @@ import com.isacc.datax.domain.entity.datax.MysqlInfo;
 import com.isacc.datax.domain.entity.reader.hdfsreader.HdfsColumn;
 import com.isacc.datax.domain.entity.reader.hdfsreader.HdfsFileTypeEnum;
 import com.isacc.datax.domain.entity.reader.mysqlreader.MysqlReaderConnection;
+import com.isacc.datax.infra.config.AzkabanProperties;
 import com.isacc.datax.infra.config.DataxProperties;
 import com.isacc.datax.infra.constant.Constants;
 import com.isacc.datax.infra.mapper.MysqlSimpleMapper;
 import com.isacc.datax.infra.util.DataxUtil;
+import com.isacc.datax.infra.util.ZipUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,12 +45,16 @@ public class DataxMysql2HiveServiceImpl extends BaseServiceImpl implements Datax
     private final MysqlSimpleMapper mysqlSimpleMapper;
     private final HiveService hiveService;
     private final DataxProperties dataxProperties;
+    private final AzkabanProperties azkabanProperties;
+    private final AzkabanService azkabanService;
 
     @Autowired
-    public DataxMysql2HiveServiceImpl(MysqlSimpleMapper mysqlSimpleMapper, HiveService hiveService, DataxProperties dataxProperties) {
+    public DataxMysql2HiveServiceImpl(MysqlSimpleMapper mysqlSimpleMapper, HiveService hiveService, DataxProperties dataxProperties, AzkabanProperties azkabanProperties, AzkabanService azkabanService) {
         this.mysqlSimpleMapper = mysqlSimpleMapper;
         this.hiveService = hiveService;
         this.dataxProperties = dataxProperties;
+        this.azkabanProperties = azkabanProperties;
+        this.azkabanService = azkabanService;
     }
 
     @Override
@@ -52,11 +63,48 @@ public class DataxMysql2HiveServiceImpl extends BaseServiceImpl implements Datax
         if (!checkApiResult.getResult()) {
             return checkApiResult;
         }
-        // 开始导数
+        // 生成json文件，上传到datax服务器
         MysqlInfo mysqlInfo = (MysqlInfo) checkApiResult.getContent();
         final String whereTemplate = dataxProperties.getMysql2Hive().getWhereTemplate();
         final Map<String, Object> dataModel = generateDataModelWhere(mysql2HiveDTO, mysqlInfo);
-        return this.startDataExtraction(dataModel, dataxProperties, whereTemplate);
+        ApiResult<Object> uploadResult = this.startDataExtraction(dataModel, dataxProperties, whereTemplate);
+        if (!uploadResult.getResult()) {
+            return uploadResult;
+        }
+        // azkaban进行调度
+        String fileName = String.valueOf(uploadResult.getContent());
+        String dataxParamProperties = azkabanProperties.getLocalDicPath() + azkabanProperties.getDataxProperties();
+        // 生成dataxParams.properties
+        Properties properties = new Properties();
+        try (FileOutputStream fos = new FileOutputStream(dataxParamProperties)) {
+            properties.setProperty("DATAX_HOME", dataxProperties.getHome());
+            properties.setProperty("DATAX_UPLOAD_DIC", dataxProperties.getUploadDicPath());
+            properties.setProperty("DATAX_JSON_FILE_NAME", fileName);
+            properties.store(fos, "datax properties");
+        } catch (IOException e) {
+            ApiResult<Object> failureResult = ApiResult.initFailure();
+            log.error("dataxParams.properties生成失败！", e);
+            failureResult.setMessage("IOException: " + e.getMessage());
+            return failureResult;
+        }
+        // 压缩dataxParams.properties和json file
+        ArrayList<File> files = new ArrayList<>();
+        files.add(new File(dataxParamProperties));
+        files.add(new File(azkabanProperties.getDataxJob()));
+        try (FileOutputStream zipOut = new FileOutputStream(azkabanProperties.getLocalDicPath() + "dataxJob.zip")) {
+            ZipUtils.toZip(files, zipOut);
+            // 压缩过后删除dataxParams.properties
+            FileUtils.deleteQuietly(new File(dataxParamProperties));
+        } catch (IOException e) {
+            ApiResult<Object> failureResult = ApiResult.initFailure();
+            log.error("dataxJob.zip generate error！", e);
+            failureResult.setMessage("IOException: " + e.getMessage());
+            return failureResult;
+        }
+        // azkaban操作
+        return azkabanService.executeDataxJob(ZipUtils.generateFileName("dataxJob"),
+                "datax job",
+                azkabanProperties.getLocalDicPath() + ZipUtils.generateFileName("dataxJob") + ".zip");
     }
 
     @Override

@@ -129,12 +129,7 @@ public class BaseServiceImpl implements BaseService {
         }
         final MultipartFile multipartFile = (MultipartFile) file2MultipartFile(jsonFile).getContent();
         // 上传到datax服务器
-        final ApiResult<Object> uploadFileApiResult = this.uploadFile(multipartFile, dataxProperties);
-        if (!uploadFileApiResult.getResult()) {
-            return uploadFileApiResult;
-        }
-        // 远程执行python进行导数
-        return execCommand(dataxProperties, String.valueOf(uploadFileApiResult.getContent()));
+        return this.uploadFile(multipartFile, dataxProperties);
     }
 
     /**

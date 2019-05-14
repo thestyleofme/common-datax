@@ -67,3 +67,11 @@ datax:
     querySqlTemplate: mysql2hive_querySql.ftl
   hive2hive:
     template: hive2hive.ftl
+
+azkaban:
+  host: ${AZKABAN_HOST:https://192.168.43.221:8443/}
+  username: ${AZKABAN_USERNAME:azkaban}
+  password: ${AZKABAN_PASSWORD:azkaban}
+  localDicPath: src/main/azkaban
+  dataxJob: src/main/resources/dataxJob.job
+  dataxProperties: dataxParams.properties

@@ -1,0 +1,3 @@
+# datax.job
+type=command
+command=python ${DATAX_HOME}bin/datax.py ${DATAX_UPLOAD_DIC}${DATAX_JSON_FILE_NAME}
