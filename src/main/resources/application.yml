@@ -84,7 +84,7 @@ datax:
     template: hive2hive.ftl
 
 azkaban:
-  host: ${AZKABAN_HOST:https://192.168.43.221:8443}
+  host: ${AZKABAN_HOST:http://192.168.43.221:8081}
   username: ${AZKABAN_USERNAME:azkaban}
   password: ${AZKABAN_PASSWORD:azkaban}
   localDicPath: src/main/azkaban/
