@@ -20,7 +20,6 @@ import com.isacc.datax.infra.config.DataxProperties;
 import com.isacc.datax.infra.constant.Constants;
 import com.isacc.datax.infra.util.DataxUtil;
 import com.isacc.datax.infra.util.HdfsUtil;
-import com.isacc.datax.infra.util.ZipUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,21 +33,20 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Slf4j
-public class DataxHive2HiveServiceImpl extends BaseServiceImpl implements DataxHive2HiveService {
+public class DataxHive2HiveServiceImpl extends BaseDataxServiceImpl implements DataxHive2HiveService {
 
     private final MysqlRepository mysqlRepository;
     private final DataxProperties dataxProperties;
     private final HiveService hiveService;
     private final AzkabanProperties azkabanProperties;
-    private final AzkabanService azkabanService;
 
     @Autowired
     public DataxHive2HiveServiceImpl(MysqlRepository mysqlRepository, DataxProperties dataxProperties, HiveService hiveService, AzkabanProperties azkabanProperties, AzkabanService azkabanService) {
+        super(azkabanService);
         this.mysqlRepository = mysqlRepository;
         this.dataxProperties = dataxProperties;
         this.hiveService = hiveService;
         this.azkabanProperties = azkabanProperties;
-        this.azkabanService = azkabanService;
     }
 
 
@@ -92,12 +90,7 @@ public class DataxHive2HiveServiceImpl extends BaseServiceImpl implements DataxH
         // 开始导数
         final String template = dataxProperties.getHive2Hive().getTemplate();
         final Map<String, Object> dataModel = generateDataModel(hive2HiveDTO);
-        ApiResult<Object> dataExtractionResult = this.startDataExtraction(dataModel, dataxProperties, template, azkabanProperties);
-        if (!dataExtractionResult.getResult()) {
-            return dataExtractionResult;
-        }
-        return azkabanService.executeDataxJob(ZipUtils.generateFileName(), ZipUtils.generateFileName(),
-                azkabanProperties.getLocalDicPath() + ZipUtils.generateFileName() + ".zip");
+        return this.startDataExtraction(dataModel, dataxProperties, template, azkabanProperties);
     }
 
     /**

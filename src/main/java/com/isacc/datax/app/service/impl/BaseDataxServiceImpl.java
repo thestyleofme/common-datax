@@ -6,7 +6,8 @@ import java.util.Map;
 import java.util.Properties;
 
 import com.isacc.datax.api.dto.ApiResult;
-import com.isacc.datax.app.service.BaseService;
+import com.isacc.datax.app.service.AzkabanService;
+import com.isacc.datax.app.service.BaseDataxService;
 import com.isacc.datax.infra.config.AzkabanProperties;
 import com.isacc.datax.infra.config.DataxProperties;
 import com.isacc.datax.infra.util.DataxUtil;
@@ -31,10 +32,18 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 @SuppressWarnings("WeakerAccess")
 @Service
 @Slf4j
-public class BaseServiceImpl implements BaseService {
+public class BaseDataxServiceImpl implements BaseDataxService {
 
-    @Override
-    public ApiResult<Object> file2MultipartFile(File file) {
+    private AzkabanService azkabanService;
+
+    public BaseDataxServiceImpl(AzkabanService azkabanService) {
+        this.azkabanService = azkabanService;
+    }
+
+    public BaseDataxServiceImpl() {
+    }
+
+    private ApiResult<Object> file2MultipartFile(File file) {
         final ApiResult<Object> successApiResult = ApiResult.initSuccess();
         FileItemFactory factory = new DiskFileItemFactory(16, null);
         FileItem fileItem = factory.createItem(file.getName(), "text/html", true, file.getName());
@@ -64,8 +73,7 @@ public class BaseServiceImpl implements BaseService {
      * @param dataxProperties dataxProperties
      * @return com.isacc.datax.api.dto.ApiResult<java.lang.Object>
      */
-    @Override
-    public ApiResult<Object> uploadFile(MultipartFile file, DataxProperties dataxProperties) {
+    private ApiResult<Object> uploadFile(MultipartFile file, DataxProperties dataxProperties) {
         final ApiResult<Object> failureApiResult = ApiResult.initFailure();
         final ApiResult<Object> successApiResult = ApiResult.initSuccess();
         if (file.isEmpty()) {
@@ -86,8 +94,7 @@ public class BaseServiceImpl implements BaseService {
         return successApiResult;
     }
 
-    @Override
-    public String[] getDataxInfo(DataxProperties dataxProperties) {
+    private String[] getDataxInfo(DataxProperties dataxProperties) {
         String ip = dataxProperties.getHost();
         String port = dataxProperties.getPort();
         String username = dataxProperties.getUsername();
@@ -95,8 +102,7 @@ public class BaseServiceImpl implements BaseService {
         return new String[]{ip, port, username, password};
     }
 
-    @Override
-    public ApiResult<Object> execCommand(DataxProperties dataxProperties, String jsonFileName) {
+    protected ApiResult<Object> execCommand(DataxProperties dataxProperties, String jsonFileName) {
         String command = "source /etc/profile;" + dataxProperties.getHome() + "bin/datax.py " + dataxProperties.getUploadDicPath() + jsonFileName;
         try (SftpUtil util = new SftpUtil()) {
             return util.connectServerUseExec(command, getDataxInfo(dataxProperties));
@@ -118,7 +124,9 @@ public class BaseServiceImpl implements BaseService {
      * @return com.isacc.datax.api.dto.ApiResult<java.lang.Object>
      * @author isacc 2019-05-08 9:23
      */
-    protected ApiResult<Object> startDataExtraction(Map<String, Object> dataModel, DataxProperties dataxProperties, String templateName, AzkabanProperties azkabanProperties) {
+    @Override
+    public ApiResult<Object> startDataExtraction(Map<String, Object> dataModel, DataxProperties dataxProperties, String templateName, AzkabanProperties azkabanProperties) {
+        ApiResult<Object> successApiResult = ApiResult.initSuccess();
         // 使用freemarker创建datax job json文件
         final ApiResult<Object> jsonResult = FreemarkerUtil.createJsonFile(dataModel, dataxProperties, templateName);
         if (!jsonResult.getResult()) {
@@ -156,17 +164,21 @@ public class BaseServiceImpl implements BaseService {
         ArrayList<File> files = new ArrayList<>();
         files.add(new File(dataxParamProperties));
         files.add(new File(azkabanProperties.getDataxJob()));
-        try (FileOutputStream zipOut = new FileOutputStream(azkabanProperties.getLocalDicPath() + "dataxJob.zip")) {
+        String zipName = ZipUtils.generateFileName();
+        String preZip = azkabanProperties.getLocalDicPath() + zipName;
+        try (FileOutputStream zipOut = new FileOutputStream(preZip + ".zip")) {
             ZipUtils.toZip(files, zipOut);
+            successApiResult.setContent(zipName);
             // 压缩过后删除dataxParams.properties
             FileUtils.deleteQuietly(new File(dataxParamProperties));
+            return azkabanService.executeDataxJob(zipName, zipName,
+                    azkabanProperties.getLocalDicPath() + zipName + ".zip");
         } catch (IOException e) {
             ApiResult<Object> failureResult = ApiResult.initFailure();
             log.error("dataxJob.zip generate error！", e);
             failureResult.setMessage("IOException: " + e.getMessage());
             return failureResult;
         }
-        return ApiResult.initSuccess();
     }
 
     /**

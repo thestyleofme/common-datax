@@ -1,8 +1,10 @@
 package com.isacc.datax.app.service.impl;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.isacc.datax.api.dto.ApiResult;
@@ -12,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
@@ -27,11 +30,12 @@ import org.springframework.web.client.RestTemplate;
  */
 @Service
 @Slf4j
-public class AzkabanServiceImpl implements AzkabanService {
+public class AzkabanServiceImpl extends BaseDataxServiceImpl implements AzkabanService {
 
     private final RestTemplate restTemplate;
     private final AzkabanProperties azkabanProperties;
     private static final String SESSION_ID = "session.id";
+    private static final String ERROR = "error";
     private final ObjectMapper objectMapper;
 
     public AzkabanServiceImpl(RestTemplate restTemplate, AzkabanProperties azkabanProperties, ObjectMapper objectMapper) {
@@ -82,113 +86,97 @@ public class AzkabanServiceImpl implements AzkabanService {
         }
         if (!CollectionUtils.isEmpty(errorList)) {
             ApiResult<Object> failureApiResult = ApiResult.initFailure();
-            failureApiResult.setMessage("azkaban execute flow fail!");
+            failureApiResult.setMessage(String.format("azkaban project: %s execute datax job fail!", projectName));
             failureApiResult.setContent(errorList);
         }
-        successApiResult.setMessage("azkaban execute datax job success!");
+        successApiResult.setMessage(String.format("azkaban project: %s execute datax job success!", projectName));
         return successApiResult;
     }
 
     private ApiResult<Object> login() {
         ApiResult<Object> successApiResult = ApiResult.initSuccess();
-        HttpHeaders hs = new HttpHeaders();
-        hs.add("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
-        hs.add("X-Requested-With", "XMLHttpRequest");
+        ApiResult<Object> failureApiResult = ApiResult.initFailure();
         LinkedMultiValueMap<String, String> linkedMultiValueMap = new LinkedMultiValueMap<>();
         linkedMultiValueMap.add("action", "login");
         linkedMultiValueMap.add("username", azkabanProperties.getUsername());
         linkedMultiValueMap.add("password", azkabanProperties.getPassword());
-        HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(linkedMultiValueMap, hs);
+        HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(linkedMultiValueMap, this.azkabanHeaders());
         try {
             Map map = restTemplate.postForObject(azkabanProperties.getHost(), httpEntity, Map.class);
             String sessionId = Optional.ofNullable(map).map(value -> String.valueOf(value.get(SESSION_ID))).orElse(null);
+            if (map != null && map.containsKey(ERROR)) {
+                failureApiResult.setContent(map.get(ERROR));
+                failureApiResult.setMessage("azkaban login fail,please check your username and password!");
+                return failureApiResult;
+            }
             successApiResult.setContent(sessionId);
         } catch (Exception e) {
             log.error("azkaban login fail,", e);
-            ApiResult<Object> failureApiResult = ApiResult.initFailure();
-            failureApiResult.setMessage("azkaban login fail,please check your username and password!");
+            failureApiResult.setMessage("azkaban login fail,please check your username and password!" + e.getMessage());
             return failureApiResult;
         }
         return successApiResult;
     }
 
     private ApiResult<Object> createProject(String sessionID, String name, String description) {
-        ApiResult<Object> successApiResult = ApiResult.initSuccess();
-        HttpHeaders hs = new HttpHeaders();
-        hs.add("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
-        hs.add("X-Requested-With", "XMLHttpRequest");
         LinkedMultiValueMap<String, String> linkedMultiValueMap = new LinkedMultiValueMap<>();
         linkedMultiValueMap.add(SESSION_ID, sessionID);
         linkedMultiValueMap.add("action", "create");
         linkedMultiValueMap.add("name", name);
         linkedMultiValueMap.add("description", description);
-        HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(linkedMultiValueMap, hs);
-        try {
-            String result = restTemplate.postForObject(azkabanProperties.getHost() + "/manager", httpEntity, String.class);
-            Map map = objectMapper.readValue(result, Map.class);
-            successApiResult.setContent(map);
-        } catch (IOException e) {
-            log.error("azkaban create project fail,", e);
-            ApiResult<Object> failureApiResult = ApiResult.initFailure();
-            failureApiResult.setMessage("create azkaban project fail," + e.getMessage());
-            return failureApiResult;
-        }
-        return successApiResult;
+        HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(linkedMultiValueMap, this.azkabanHeaders());
+        String result = restTemplate.postForObject(String.format("%s/manager", azkabanProperties.getHost()), httpEntity, String.class);
+        return checkRequestResult(result);
     }
 
     private ApiResult<Object> uploadZip(String sessionID, String name, String zipPath) {
-        ApiResult<Object> successApiResult = ApiResult.initSuccess();
-        FileSystemResource resource = new FileSystemResource(new File(zipPath));
+        FileSystemResource fileAsResource = new FileSystemResource(zipPath);
         LinkedMultiValueMap<String, Object> linkedMultiValueMap = new LinkedMultiValueMap<>();
         linkedMultiValueMap.add(SESSION_ID, sessionID);
         linkedMultiValueMap.add("ajax", "upload");
         linkedMultiValueMap.add("project", name);
-        linkedMultiValueMap.add("file", resource);
-        try {
-            String result = restTemplate.postForObject(azkabanProperties.getHost() + "/manager", linkedMultiValueMap, String.class);
-            Map map = objectMapper.readValue(result, Map.class);
-            successApiResult.setContent(map);
-        } catch (IOException e) {
-            log.error("azkaban upload zip file fail,", e);
-            ApiResult<Object> failureApiResult = ApiResult.initFailure();
-            failureApiResult.setMessage("azkaban upload zip file fail," + e.getMessage());
-            return failureApiResult;
-        }
-        return successApiResult;
+        linkedMultiValueMap.add("file", fileAsResource);
+        String result = restTemplate.postForObject(String.format("%s/manager", azkabanProperties.getHost()), linkedMultiValueMap, String.class);
+        return checkRequestResult(result);
     }
 
     private ApiResult<Object> fetchFlows(String sessionID, String name) {
-        ApiResult<Object> successApiResult = ApiResult.initSuccess();
-        try {
-            String result = restTemplate.getForObject(String.format("%s/manager?session.id=%s&ajax=fetchprojectflows&project=%s",
-                    azkabanProperties.getHost(),
-                    sessionID,
-                    name), String.class);
-            Map map = objectMapper.readValue(result, Map.class);
-            successApiResult.setContent(map);
-        } catch (IOException e) {
-            log.error("azkaban fetch flows fail,", e);
-            ApiResult<Object> failureApiResult = ApiResult.initFailure();
-            failureApiResult.setMessage("azkaban fetch flows fail," + e.getMessage());
-            return failureApiResult;
-        }
-        return successApiResult;
+        String result = restTemplate.getForObject(String.format("%s/manager?session.id=%s&ajax=fetchprojectflows&project=%s",
+                azkabanProperties.getHost(),
+                sessionID,
+                name), String.class);
+        return this.checkRequestResult(result);
     }
 
     private ApiResult<Object> executeFlow(String sessionID, String name, String flow) {
+        String result = restTemplate.getForObject(String.format("%s/executor?session.id=%s&ajax=executeFlow&project=%s&flow=%s",
+                azkabanProperties.getHost(),
+                sessionID,
+                name,
+                flow), String.class);
+        return checkRequestResult(result);
+    }
+
+    private HttpHeaders azkabanHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", MediaType.APPLICATION_FORM_URLENCODED_VALUE);
+        headers.add("X-Requested-With", "XMLHttpRequest");
+        return headers;
+    }
+
+    private ApiResult<Object> checkRequestResult(String result) {
         ApiResult<Object> successApiResult = ApiResult.initSuccess();
+        ApiResult<Object> failureApiResult = ApiResult.initFailure();
         try {
-            String result = restTemplate.getForObject(String.format("%s/executor?session.id=%s&ajax=executeFlow&project=%s&flow=%s",
-                    azkabanProperties.getHost(),
-                    sessionID,
-                    name,
-                    flow), String.class);
             Map map = objectMapper.readValue(result, Map.class);
+            if (map != null && map.containsKey(ERROR)) {
+                failureApiResult.setMessage(String.valueOf(map.get(ERROR)));
+                return failureApiResult;
+            }
             successApiResult.setContent(map);
         } catch (IOException e) {
-            log.error("azkaban execute flow fail,", e);
-            ApiResult<Object> failureApiResult = ApiResult.initFailure();
-            failureApiResult.setMessage("azkaban execute flow fail," + e.getMessage());
+            log.error("something exceptional has happened,", e);
+            failureApiResult.setMessage(e.getMessage());
             return failureApiResult;
         }
         return successApiResult;

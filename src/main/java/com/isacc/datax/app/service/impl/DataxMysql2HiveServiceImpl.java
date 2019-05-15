@@ -21,7 +21,6 @@ import com.isacc.datax.infra.config.DataxProperties;
 import com.isacc.datax.infra.constant.Constants;
 import com.isacc.datax.infra.mapper.MysqlSimpleMapper;
 import com.isacc.datax.infra.util.DataxUtil;
-import com.isacc.datax.infra.util.ZipUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,21 +35,20 @@ import org.springframework.stereotype.Service;
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 @Service
 @Slf4j
-public class DataxMysql2HiveServiceImpl extends BaseServiceImpl implements DataxMysql2HiveService {
+public class DataxMysql2HiveServiceImpl extends BaseDataxServiceImpl implements DataxMysql2HiveService {
 
     private final MysqlSimpleMapper mysqlSimpleMapper;
     private final HiveService hiveService;
     private final DataxProperties dataxProperties;
     private final AzkabanProperties azkabanProperties;
-    private final AzkabanService azkabanService;
 
     @Autowired
     public DataxMysql2HiveServiceImpl(MysqlSimpleMapper mysqlSimpleMapper, HiveService hiveService, DataxProperties dataxProperties, AzkabanProperties azkabanProperties, AzkabanService azkabanService) {
+        super(azkabanService);
         this.mysqlSimpleMapper = mysqlSimpleMapper;
         this.hiveService = hiveService;
         this.dataxProperties = dataxProperties;
         this.azkabanProperties = azkabanProperties;
-        this.azkabanService = azkabanService;
     }
 
     @Override
@@ -63,12 +61,7 @@ public class DataxMysql2HiveServiceImpl extends BaseServiceImpl implements Datax
         MysqlInfo mysqlInfo = (MysqlInfo) checkApiResult.getContent();
         final String whereTemplate = dataxProperties.getMysql2Hive().getWhereTemplate();
         final Map<String, Object> dataModel = generateDataModelWhere(mysql2HiveDTO, mysqlInfo);
-        ApiResult<Object> dataExtractionResult = this.startDataExtraction(dataModel, dataxProperties, whereTemplate, azkabanProperties);
-        if (!dataExtractionResult.getResult()) {
-            return dataExtractionResult;
-        }
-        return azkabanService.executeDataxJob(ZipUtils.generateFileName(), ZipUtils.generateFileName(),
-                azkabanProperties.getLocalDicPath() + ZipUtils.generateFileName() + ".zip");
+        return this.startDataExtraction(dataModel, dataxProperties, whereTemplate, azkabanProperties);
     }
 
     @Override
@@ -81,12 +74,7 @@ public class DataxMysql2HiveServiceImpl extends BaseServiceImpl implements Datax
         MysqlInfo mysqlInfo = (MysqlInfo) checkApiResult.getContent();
         final String querySqlTemplate = dataxProperties.getMysql2Hive().getQuerySqlTemplate();
         final Map<String, Object> dataModel = generateDataModelQuerySql(mysql2HiveDTO, mysqlInfo);
-        ApiResult<Object> dataExtractionResult = this.startDataExtraction(dataModel, dataxProperties, querySqlTemplate, azkabanProperties);
-        if (!dataExtractionResult.getResult()) {
-            return dataExtractionResult;
-        }
-        return azkabanService.executeDataxJob(ZipUtils.generateFileName(), ZipUtils.generateFileName(),
-                azkabanProperties.getLocalDicPath() + ZipUtils.generateFileName() + ".zip");
+        return this.startDataExtraction(dataModel, dataxProperties, querySqlTemplate, azkabanProperties);
     }
 
     /**
