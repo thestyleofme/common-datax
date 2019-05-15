@@ -19,6 +19,7 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
  */
 public class CustomSimpleClientHttpRequestFactory extends SimpleClientHttpRequestFactory {
 
+    @SuppressWarnings("NullableProblems")
     @Override
     protected void prepareConnection(HttpURLConnection connection, String httpMethod)
             throws IOException {
