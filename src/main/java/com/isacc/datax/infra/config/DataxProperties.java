@@ -56,6 +56,8 @@ public class DataxProperties {
 
     private Hive2Hive hive2Hive;
 
+    @SuppressWarnings("WeakerAccess")
+    @Data
     public static class Mysql2Hive {
         /**
          * mysql2hive的freemarker模板文件名称，使用where
@@ -65,24 +67,10 @@ public class DataxProperties {
          * mysql2hive的freemarker模板文件名称，使用自定义SQL
          */
         private String querySqlTemplate;
-
-        public String getWhereTemplate() {
-            return whereTemplate;
-        }
-
-        public void setWhereTemplate(String whereTemplate) {
-            this.whereTemplate = whereTemplate;
-        }
-
-        public void setQuerySqlTemplate(String querySqlTemplate) {
-            this.querySqlTemplate = querySqlTemplate;
-        }
-
-        public String getQuerySqlTemplate() {
-            return querySqlTemplate;
-        }
     }
 
+    @SuppressWarnings("WeakerAccess")
+    @Data
     public static class Hive2Hive {
 
         /**
@@ -90,12 +78,5 @@ public class DataxProperties {
          */
         private String template;
 
-        public String getTemplate() {
-            return template;
-        }
-
-        public void setTemplate(String template) {
-            this.template = template;
-        }
     }
 }
