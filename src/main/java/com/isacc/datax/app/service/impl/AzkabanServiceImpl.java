@@ -1,10 +1,8 @@
 package com.isacc.datax.app.service.impl;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.isacc.datax.api.dto.ApiResult;
@@ -12,6 +10,7 @@ import com.isacc.datax.app.service.AzkabanService;
 import com.isacc.datax.infra.config.AzkabanProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -37,11 +36,13 @@ public class AzkabanServiceImpl extends BaseDataxServiceImpl implements AzkabanS
     private static final String SESSION_ID = "session.id";
     private static final String ERROR = "error";
     private final ObjectMapper objectMapper;
+    private final StringRedisTemplate stringRedisTemplate;
 
-    public AzkabanServiceImpl(RestTemplate restTemplate, AzkabanProperties azkabanProperties, ObjectMapper objectMapper) {
+    public AzkabanServiceImpl(RestTemplate restTemplate, AzkabanProperties azkabanProperties, ObjectMapper objectMapper, StringRedisTemplate stringRedisTemplate) {
         this.restTemplate = restTemplate;
         this.azkabanProperties = azkabanProperties;
         this.objectMapper = objectMapper;
+        this.stringRedisTemplate = stringRedisTemplate;
     }
 
     @Override
@@ -102,14 +103,22 @@ public class AzkabanServiceImpl extends BaseDataxServiceImpl implements AzkabanS
         linkedMultiValueMap.add("password", azkabanProperties.getPassword());
         HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(linkedMultiValueMap, this.azkabanHeaders());
         try {
-            Map map = restTemplate.postForObject(azkabanProperties.getHost(), httpEntity, Map.class);
-            String sessionId = Optional.ofNullable(map).map(value -> String.valueOf(value.get(SESSION_ID))).orElse(null);
-            if (map != null && map.containsKey(ERROR)) {
-                failureApiResult.setContent(map.get(ERROR));
-                failureApiResult.setMessage("azkaban login fail,please check your username and password!");
-                return failureApiResult;
+            String sessionIdCache = stringRedisTemplate.opsForValue().get(SESSION_ID);
+            if (Objects.isNull(sessionIdCache)) {
+                Map map = restTemplate.postForObject(azkabanProperties.getHost(), httpEntity, Map.class);
+                String sessionId = Optional.ofNullable(map).map(value -> String.valueOf(value.get(SESSION_ID))).orElse(null);
+                if (!Objects.isNull(sessionId)) {
+                    stringRedisTemplate.opsForValue().set(SESSION_ID, sessionId, 1L, TimeUnit.DAYS);
+                }
+                if (!Objects.isNull(map) && map.containsKey(ERROR)) {
+                    failureApiResult.setContent(map.get(ERROR));
+                    failureApiResult.setMessage("azkaban login fail,please check your username and password!");
+                    return failureApiResult;
+                }
+                successApiResult.setContent(sessionId);
+            } else {
+                successApiResult.setContent(sessionIdCache);
             }
-            successApiResult.setContent(sessionId);
         } catch (Exception e) {
             log.error("azkaban login fail,", e);
             failureApiResult.setMessage("azkaban login fail,please check your username and password!" + e.getMessage());
