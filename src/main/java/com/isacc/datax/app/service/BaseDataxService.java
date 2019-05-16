@@ -23,7 +23,7 @@ public interface BaseDataxService {
      * @param templateName      templateName
      * @param azkabanProperties azkabanProperties
      * @return com.isacc.datax.api.dto.ApiResult<java.lang.Object>
-     * @author HP_USER 2019/5/15 14:34
+     * @author headers 2019/5/15 14:34
      */
     ApiResult<Object> startDataExtraction(Map<String, Object> dataModel, DataxProperties dataxProperties,
                                           String templateName, AzkabanProperties azkabanProperties);

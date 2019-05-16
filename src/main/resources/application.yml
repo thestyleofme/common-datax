@@ -53,9 +53,6 @@ spring:
         # 默认 -1 表示永不超时，设置5秒
         max-wait: 5000
 
-server:
-  port: 10024
-
 logging:
   level:
     com.isacc.datax: debug
