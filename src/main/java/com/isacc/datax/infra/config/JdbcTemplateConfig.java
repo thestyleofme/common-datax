@@ -10,10 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
  * <p>
- * 不知道为啥@DS("hive")不能切换数据源
- * 所以这里制定下hive数据源
- * 有知道的大神可以联系我
- * qq: 283273332
+ * JdbcTemplateConfig
  * </p>
  *
  * @author isacc 2019/06/04 20:52
@@ -23,7 +20,7 @@ public class JdbcTemplateConfig {
 
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Bean
-    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
+    public JdbcTemplate hiveJdbcTemplate(DataSource dataSource) {
         return new JdbcTemplate(((DynamicRoutingDataSource) dataSource).getDataSource("hive"));
     }
 }

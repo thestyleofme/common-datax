@@ -2,10 +2,6 @@ package com.isacc.datax.app.service.impl;
 
 import java.util.List;
 
-import javax.sql.DataSource;
-
-import com.baomidou.dynamic.datasource.DynamicRoutingDataSource;
-import com.baomidou.dynamic.datasource.annotation.DS;
 import com.isacc.datax.api.dto.ApiResult;
 import com.isacc.datax.api.dto.HiveInfoDTO;
 import com.isacc.datax.app.service.HiveService;
@@ -29,11 +25,11 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class HiveServiceImpl implements HiveService {
 
-    private final JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate hiveJdbcTemplate;
 
     @Autowired
-    public HiveServiceImpl(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public HiveServiceImpl(JdbcTemplate hiveJdbcTemplate) {
+        this.hiveJdbcTemplate = hiveJdbcTemplate;
     }
 
     @Override
@@ -64,7 +60,7 @@ public class HiveServiceImpl implements HiveService {
         }
         log.info("创表语句：{}", sql);
         try {
-            jdbcTemplate.execute(sql);
+            hiveJdbcTemplate.execute(sql);
             successApiResult.setMessage(String.format("成功创建表%s!", hiveInfoDTO.getTableName()));
             log.info("create hive table: {}.{}", hiveInfoDTO.getDatabaseName(), hiveInfoDTO.getTableName());
             return successApiResult;
@@ -83,7 +79,7 @@ public class HiveServiceImpl implements HiveService {
         final String sql = String.format("CREATE DATABASE IF NOT EXISTS %s", databaseName);
         final ApiResult<Object> successApiResult = ApiResult.initSuccess();
         try {
-            jdbcTemplate.execute(sql);
+            hiveJdbcTemplate.execute(sql);
             successApiResult.setMessage(String.format("成功创建数据库%s!", databaseName));
             log.info("create hive database: {}!", databaseName);
             return successApiResult;
@@ -110,7 +106,7 @@ public class HiveServiceImpl implements HiveService {
         );
         final ApiResult<Object> successApiResult = ApiResult.initSuccess();
         try {
-            jdbcTemplate.execute(sql);
+            hiveJdbcTemplate.execute(sql);
             successApiResult.setMessage(String.format("成功创建分区%s!", partitionInfoSql));
             log.info("create hive table partition: {}!", partitionInfoSql);
             return successApiResult;
@@ -127,7 +123,7 @@ public class HiveServiceImpl implements HiveService {
     public ApiResult<Object> deleteTable(HiveInfoDTO hiveInfoDTO) {
         final String sql = String.format("DROP TABLE IF EXISTS %s.%s", hiveInfoDTO.getDatabaseName(), hiveInfoDTO.getTableName());
         try {
-            jdbcTemplate.execute(sql);
+            hiveJdbcTemplate.execute(sql);
             log.info("delete hive table: {}.{}!", hiveInfoDTO.getDatabaseName(), hiveInfoDTO.getTableName());
             final ApiResult<Object> successApiResult = ApiResult.initSuccess();
             successApiResult.setMessage(String.format("成功删除表%s.%s!", hiveInfoDTO.getDatabaseName(), hiveInfoDTO.getTableName()));
@@ -145,7 +141,7 @@ public class HiveServiceImpl implements HiveService {
     public ApiResult<Object> deleteDatabase(String databaseName) {
         final String sql = String.format("DROP DATABASE IF EXISTS %s", databaseName);
         try {
-            jdbcTemplate.execute(sql);
+            hiveJdbcTemplate.execute(sql);
             final ApiResult<Object> successApiResult = ApiResult.initSuccess();
             successApiResult.setMessage(String.format("成功删除数据库%s!", databaseName));
             log.info("delete hive database: {} !", databaseName);
