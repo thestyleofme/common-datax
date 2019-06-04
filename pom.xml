@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.isacc</groupId>
     <artifactId>common-datax</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.9.0-SNAPSHOT</version>
 
     <properties>
         <spring-cloud.version>Greenwich.SR1</spring-cloud.version>
@@ -28,6 +28,7 @@
         <commons.io.version>2.6</commons.io.version>
         <commons.fileupload.version>1.4</commons.fileupload.version>
         <swagger2.ui>2.9.2</swagger2.ui>
+        <mybatis.plus.version>3.1.1</mybatis.plus.version>
     </properties>
 
     <dependencies>
@@ -35,6 +36,14 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-config-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
         <!--spring boot-->
         <dependency>
@@ -82,6 +91,11 @@
             <groupId>com.baomidou</groupId>
             <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
             <version>${dynamic.datasource.boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>${mybatis.plus.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>
@@ -148,7 +162,6 @@
             <scope>provided</scope>
         </dependency>
 
-
         <!--db-->
         <dependency>
             <groupId>mysql</groupId>
@@ -213,6 +226,7 @@
             <artifactId>commons-fileupload</artifactId>
             <version>${commons.fileupload.version}</version>
         </dependency>
+
 
     </dependencies>
 

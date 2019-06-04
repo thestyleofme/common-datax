@@ -1,14 +1,14 @@
 package com.isacc.datax.domain.entity.reader.mysqlreader;
 
-import java.util.List;
-import javax.validation.constraints.NotEmpty;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
+import java.util.List;
+import javax.validation.constraints.NotEmpty;
+
 /**
  * <p>
- * DataX Mysql插件的connection封装
+ * DataX Mysql,Oracle插件的connection封装
  * </p>
  *
  * @author isacc 2019/04/28 10:34
@@ -19,7 +19,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class MysqlReaderConnection {
+public class ReaderConnection {
 
 	/**
 	 * 需要同步的表，支持同一schema下多张表同时抽取
@@ -32,10 +32,9 @@ public class MysqlReaderConnection {
 	@NotEmpty
 	private List<String> jdbcUrl;
 	/**
-	 * 当用户配置querySql时，MysqlReader直接忽略table、column、where条件的配置
+	 * 当用户配置querySql时，reader直接忽略table、column、where条件的配置
 	 */
 	@NotEmpty
 	private List<String> querySql;
-
 
 }

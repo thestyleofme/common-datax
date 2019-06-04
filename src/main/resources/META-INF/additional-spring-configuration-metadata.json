@@ -1,0 +1,63 @@
+{
+  "properties": [
+    {
+      "name": "datax.mysql2Hive.whereTemplate",
+      "type": "java.lang.String",
+      "description": "mysql条件查询数据同步到Hive."
+    },
+    {
+      "name": "datax.mysql2Hive.querySqlTemplate",
+      "type": "java.lang.String",
+      "description": "mysql自定义sql查询数据同步到Hive."
+    },
+    {
+      "name": "datax.mysql2Mysql.whereTemplate",
+      "type": "java.lang.String",
+      "description": "mysql条件查询数据同步到mysql."
+    },
+    {
+      "name": "datax.mysql2Mysql.querySqlTemplate",
+      "type": "java.lang.String",
+      "description": "mysql自定义sql查询数据同步到mysql."
+    },
+    {
+      "name": "datax.oracle2Hive.whereTemplate",
+      "type": "java.lang.String",
+      "description": "oracle条件查询数据同步到hive."
+    },
+    {
+      "name": "datax.oracle2Hive.querySqlTemplate",
+      "type": "java.lang.String",
+      "description": "oracle自定义sql查询数据同步到hive."
+    },
+    {
+      "name": "datax.oracle2Oracle.whereTemplate",
+      "type": "java.lang.String",
+      "description": "oracle条件查询数据同步到oracle."
+    },
+    {
+      "name": "datax.oracle2Oracle.querySqlTemplate",
+      "type": "java.lang.String",
+      "description": "oracle自定义sql查询数据同步到oracle."
+    },
+    {
+      "name": "datax.oracle2Mysql.whereTemplate",
+      "type": "java.lang.String",
+      "description": "oracle条件查询数据同步到mysql."
+    },
+    {
+      "name": "datax.oracle2Mysql.querySqlTemplate",
+      "type": "java.lang.String",
+      "description": "oracle自定义sql查询数据同步到mysql."
+    },
+    {
+      "name": "datax.mysql2Oracle.whereTemplate",
+      "type": "java.lang.String",
+      "description": "mysql条件查询数据同步到oracle."
+    },
+    {
+      "name": "datax.mysql2Oracle.querySqlTemplate",
+      "type": "java.lang.String",
+      "description": "mysql自定义sql查询数据同步到mysql."
+    }
+  ] }

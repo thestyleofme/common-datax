@@ -14,7 +14,6 @@ import org.apache.http.HttpStatus;
 @Builder
 @Data
 @EqualsAndHashCode(callSuper = false)
-@NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResult<T> {

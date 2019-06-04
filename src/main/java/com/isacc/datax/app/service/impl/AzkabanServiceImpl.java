@@ -25,21 +25,21 @@ import org.springframework.web.client.RestTemplate;
  * description
  * </P>
  *
- * @author isacc 2019/05/13 22:02
+ * @author isacc 2019/05/20 14:02
  */
 @Service
 @Slf4j
 public class AzkabanServiceImpl extends BaseDataxServiceImpl implements AzkabanService {
 
-    private final RestTemplate restTemplate;
+    private final RestTemplate cusRestTemplate;
     private final AzkabanProperties azkabanProperties;
     private static final String SESSION_ID = "session.id";
     private static final String ERROR = "error";
     private final ObjectMapper objectMapper;
     private final StringRedisTemplate stringRedisTemplate;
 
-    public AzkabanServiceImpl(RestTemplate restTemplate, AzkabanProperties azkabanProperties, ObjectMapper objectMapper, StringRedisTemplate stringRedisTemplate) {
-        this.restTemplate = restTemplate;
+    public AzkabanServiceImpl(RestTemplate cusRestTemplate, AzkabanProperties azkabanProperties, ObjectMapper objectMapper, StringRedisTemplate stringRedisTemplate) {
+        this.cusRestTemplate = cusRestTemplate;
         this.azkabanProperties = azkabanProperties;
         this.objectMapper = objectMapper;
         this.stringRedisTemplate = stringRedisTemplate;
@@ -78,11 +78,14 @@ public class AzkabanServiceImpl extends BaseDataxServiceImpl implements AzkabanS
         // 执行流
         ApiResult<Object> executeFlowResult;
         List<Object> errorList = new ArrayList<>();
+        List<Object> execList = new ArrayList<>();
         for (String flow : flowList) {
             executeFlowResult = this.executeFlow(sessionID, projectName, flow);
             if (!executeFlowResult.getResult()) {
                 errorList.add(executeFlowResult.getContent());
                 break;
+            } else {
+                execList.add(executeFlowResult.getContent());
             }
         }
         if (!CollectionUtils.isEmpty(errorList)) {
@@ -91,6 +94,7 @@ public class AzkabanServiceImpl extends BaseDataxServiceImpl implements AzkabanS
             failureApiResult.setContent(errorList);
         }
         successApiResult.setMessage(String.format("azkaban project: %s execute datax job success!", projectName));
+        successApiResult.setContent(execList);
         return successApiResult;
     }
 
@@ -105,7 +109,7 @@ public class AzkabanServiceImpl extends BaseDataxServiceImpl implements AzkabanS
         try {
             String sessionIdCache = stringRedisTemplate.opsForValue().get(SESSION_ID);
             if (Objects.isNull(sessionIdCache)) {
-                Map map = restTemplate.postForObject(azkabanProperties.getHost(), httpEntity, Map.class);
+                Map map = cusRestTemplate.postForObject(azkabanProperties.getHost(), httpEntity, Map.class);
                 String sessionId = Optional.ofNullable(map).map(value -> String.valueOf(value.get(SESSION_ID))).orElse(null);
                 if (!Objects.isNull(sessionId)) {
                     stringRedisTemplate.opsForValue().set(SESSION_ID, sessionId, 1L, TimeUnit.DAYS);
@@ -134,7 +138,7 @@ public class AzkabanServiceImpl extends BaseDataxServiceImpl implements AzkabanS
         linkedMultiValueMap.add("name", name);
         linkedMultiValueMap.add("description", description);
         HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(linkedMultiValueMap, this.azkabanHeaders());
-        String result = restTemplate.postForObject(String.format("%s/manager", azkabanProperties.getHost()), httpEntity, String.class);
+        String result = cusRestTemplate.postForObject(String.format("%s/manager", azkabanProperties.getHost()), httpEntity, String.class);
         return checkRequestResult(result);
     }
 
@@ -145,12 +149,12 @@ public class AzkabanServiceImpl extends BaseDataxServiceImpl implements AzkabanS
         linkedMultiValueMap.add("ajax", "upload");
         linkedMultiValueMap.add("project", name);
         linkedMultiValueMap.add("file", fileAsResource);
-        String result = restTemplate.postForObject(String.format("%s/manager", azkabanProperties.getHost()), linkedMultiValueMap, String.class);
+        String result = cusRestTemplate.postForObject(String.format("%s/manager", azkabanProperties.getHost()), linkedMultiValueMap, String.class);
         return checkRequestResult(result);
     }
 
     private ApiResult<Object> fetchFlows(String sessionID, String name) {
-        String result = restTemplate.getForObject(String.format("%s/manager?session.id=%s&ajax=fetchprojectflows&project=%s",
+        String result = cusRestTemplate.getForObject(String.format("%s/manager?session.id=%s&ajax=fetchprojectflows&project=%s",
                 azkabanProperties.getHost(),
                 sessionID,
                 name), String.class);
@@ -158,7 +162,7 @@ public class AzkabanServiceImpl extends BaseDataxServiceImpl implements AzkabanS
     }
 
     private ApiResult<Object> executeFlow(String sessionID, String name, String flow) {
-        String result = restTemplate.getForObject(String.format("%s/executor?session.id=%s&ajax=executeFlow&project=%s&flow=%s",
+        String result = cusRestTemplate.getForObject(String.format("%s/executor?session.id=%s&ajax=executeFlow&project=%s&flow=%s",
                 azkabanProperties.getHost(),
                 sessionID,
                 name,
@@ -190,6 +194,4 @@ public class AzkabanServiceImpl extends BaseDataxServiceImpl implements AzkabanS
         }
         return successApiResult;
     }
-
-
 }

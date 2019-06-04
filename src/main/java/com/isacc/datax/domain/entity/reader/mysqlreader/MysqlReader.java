@@ -1,13 +1,17 @@
 package com.isacc.datax.domain.entity.reader.mysqlreader;
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.isacc.datax.domain.entity.reader.BaseReader;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import lombok.*;
+
 import java.util.List;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.isacc.datax.domain.entity.reader.BaseReader;
-import lombok.*;
 
 /**
  * <p>
@@ -48,7 +52,7 @@ public class MysqlReader extends BaseReader {
 	 * mysql连接信息
 	 */
 	@NotEmpty
-	private List<MysqlReaderConnection> connection;
+	private List<ReaderConnection> connection;
 	/**
 	 * 筛选条件，MysqlReader根据指定的column、table、where条件拼接SQL，并根据这个SQL进行数据抽取
 	 */

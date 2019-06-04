@@ -1,6 +1,5 @@
 package com.isacc.datax.infra.config;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestFactory;
@@ -17,8 +16,8 @@ import org.springframework.web.client.RestTemplate;
 public class RestTemplateConfig {
 
     @Bean
-    public RestTemplate restTemplate(@Qualifier("customSimpleClientHttpRequestFactory") ClientHttpRequestFactory factory) {
-        return new RestTemplate(factory);
+    public RestTemplate cusRestTemplate(ClientHttpRequestFactory customSimpleClientHttpRequestFactory) {
+        return new RestTemplate(customSimpleClientHttpRequestFactory);
     }
 
     @Bean

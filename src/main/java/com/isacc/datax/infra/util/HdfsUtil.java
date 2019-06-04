@@ -34,8 +34,10 @@ public class HdfsUtil implements AutoCloseable {
          * new Configuration()会从项目的classpath中加载core-default.xml hdfs-default.xml core-site.xml hdfs-site.xml等文件
          */
         Configuration conf = new Configuration();
-        // 指定本客户端上传文件到hdfs时需要保存的副本数为：2
-        conf.set("dfs.replication", "2");
+        /*
+         * 指定本客户端上传文件到hdfs时需要保存的副本数为：2
+         * conf.set("dfs.replication", "2")
+         */
         // 指定本客户端上传文件到hdfs时切块的规格大小：128M
         conf.set("dfs.blocksize", "128m");
         fileSystem = FileSystem.get(new URI(nameNode), conf, user);
@@ -48,9 +50,9 @@ public class HdfsUtil implements AutoCloseable {
             HdfsUtil.getFileSystem(nameNode, user);
             fileSystem.mkdirs(new Path(target));
             fileSystem.copyFromLocalFile(new Path(source), new Path(target));
-        } catch (IOException | InterruptedException | URISyntaxException e) {
+        } catch (Exception e) {
             ApiResult<Object> failureApiResult = ApiResult.initFailure();
-            failureApiResult.setMessage("上传失败！");
+            failureApiResult.setMessage(String.format("上传csv文件失败！%n%s", e.getMessage()));
             return failureApiResult;
         }
         return successApiResult;

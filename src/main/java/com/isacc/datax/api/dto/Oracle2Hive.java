@@ -2,16 +2,14 @@ package com.isacc.datax.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.isacc.datax.domain.entity.datax.BaseDatax;
-import com.isacc.datax.domain.entity.reader.hdfsreader.HdfsReader;
+import com.isacc.datax.domain.entity.reader.oraclereader.OracleReader;
 import com.isacc.datax.domain.entity.writer.hdfswiter.HdfsWriter;
 import lombok.*;
 
 /**
- * <p>
- * Hive2HiveDTO
- * </p>
+ * description
  *
- * @author isacc 2019/05/07 14:12
+ * @author isacc 2019/05/28 11:28
  */
 @Builder
 @Data
@@ -19,13 +17,14 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Hive2HiveDTO extends BaseDatax {
+public class Oracle2Hive extends BaseDatax {
+
     /**
-     * DataX HdfsReader
+     * oraclereader
      */
-    private HdfsReader reader;
+    private OracleReader reader;
     /**
-     * DataX HdfsWriter
+     * hdfswriter
      */
     private HdfsWriter writer;
 }

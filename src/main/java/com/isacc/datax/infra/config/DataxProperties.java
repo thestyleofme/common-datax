@@ -53,8 +53,14 @@ public class DataxProperties {
     private String basePackagePath;
 
     private Mysql2Hive mysql2Hive;
-
-    private Hive2Hive hive2Hive;
+    private Mysql2Mysql mysql2Mysql;
+    private Mysql2Oracle mysql2Oracle;
+    private String hive2HiveTemplate;
+    private String hive2MysqlTemplate;
+    private String hive2OracleTemplate;
+    private Oracle2Hive oracle2Hive;
+    private Oracle2Oracle oracle2Oracle;
+    private Oracle2Mysql oracle2Mysql;
 
     @SuppressWarnings("WeakerAccess")
     @Data
@@ -64,19 +70,74 @@ public class DataxProperties {
          */
         private String whereTemplate;
         /**
-         * mysql2hive的freemarker模板文件名称，使用自定义SQL
+         * mysql2hive的freemarker模板文件名称，使用querySql
          */
         private String querySqlTemplate;
     }
 
     @SuppressWarnings("WeakerAccess")
     @Data
-    public static class Hive2Hive {
-
+    public static class Mysql2Oracle {
         /**
-         * hive2hive的freemarker模板文件名称
+         * mysql2oracle的freemarker模板文件名称，使用where
          */
-        private String template;
-
+        private String whereTemplate;
+        /**
+         * mysql2oracle的freemarker模板文件名称，使用querySql
+         */
+        private String querySqlTemplate;
     }
+
+    @SuppressWarnings("WeakerAccess")
+    @Data
+    public static class Oracle2Hive {
+        /**
+         * oracle2hive的freemarker模板文件名称，使用where
+         */
+        private String whereTemplate;
+        /**
+         * oracle2hive的freemarker模板文件名称，使用querySql
+         */
+        private String querySqlTemplate;
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    @Data
+    public static class Mysql2Mysql {
+        /**
+         * mysql2mysql的freemarker模板文件名称，使用where
+         */
+        private String whereTemplate;
+        /**
+         * mysql2mysql的freemarker模板文件名称，使用querySql
+         */
+        private String querySqlTemplate;
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    @Data
+    public static class Oracle2Oracle {
+        /**
+         * oracle2oracle的freemarker模板文件名称，使用where
+         */
+        private String whereTemplate;
+        /**
+         * oracle2oracle的freemarker模板文件名称，使用querySql
+         */
+        private String querySqlTemplate;
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    @Data
+    public static class Oracle2Mysql {
+        /**
+         * oracle2mysql的freemarker模板文件名称，使用where
+         */
+        private String whereTemplate;
+        /**
+         * oracle2mysql的freemarker模板文件名称，使用querySql
+         */
+        private String querySqlTemplate;
+    }
+
 }

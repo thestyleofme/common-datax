@@ -4,29 +4,28 @@ spring:
       cache: false # 开发时使用，resource文件夹下的资源不进行缓存处理，即每次都需要去加载
   datasource:
     dynamic:
-      primary: hive #设置默认的数据源或者数据源组,默认值即为master
-      strict: false #设置严格模式,默认false不启动. 启动后再为匹配到指定数据源时候回抛出异常,不启动会使用默认数据源.
+      primary: mysql
       datasource:
         hive:
-          username: hadoop # 注意用户名，使用hive用户没操作hdfs的权限
-          password: hadoop
+          username: hive # 注意用户名，使用hive用户没操作hdfs的权限
+          password: hive
           driver-class-name: org.apache.hive.jdbc.HiveDriver
-          url: jdbc:hive2://hadoop04:10000/default
-        hivemetadata:
+          url: jdbc:hive2://192.168.11.223:10000/hdsp_test
+        mysql_hivemeta:
           username: root
           password: root
           driver-class-name: com.mysql.jdbc.Driver
-          url: jdbc:mysql://hadoop04:3306/hive?useUnicode=true&characterEncoding=utf-8&useSSL=false
+          url: jdbc:mysql://192.168.11.227:3306/hive_3_1_0?useUnicode=true&characterEncoding=utf-8&useSSL=false
         mysql_1:
           username: root
           password: root
           driver-class-name: com.mysql.jdbc.Driver
-          url: jdbc:mysql://hadoop04:3306/sudu?useUnicode=true&characterEncoding=utf-8&useSSL=false
+          url: jdbc:mysql://192.168.11.227:3306/hdsp_datax?useUnicode=true&characterEncoding=utf-8&useSSL=false
         mysql_2:
           username: root
           password: tse@9527
           driver-class-name: com.mysql.jdbc.Driver
-          url: jdbc:mysql://localhost:3306/sudu?useUnicode=true&characterEncoding=utf-8&useSSL=false
+          url: jdbc:mysql://localhost:3306/hdsp_datax?useUnicode=true&characterEncoding=utf-8&useSSL=false
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
       minimum-idle: 10
@@ -37,6 +36,7 @@ spring:
       max-lifetime: 1800000
       connection-timeout: 30000
       connection-test-query: SELECT 1
+
   redis:
     host: localhost
     port: 6379
@@ -56,6 +56,7 @@ spring:
 logging:
   level:
     com.isacc.datax: debug
+    com.baomidou.dynamic: debug
   file: logs/springboot_mybatis.log
 
 mybatis:
@@ -65,25 +66,41 @@ mybatis:
 
 # 这里只要是路径，后面都加上/
 datax:
-  home: /usr/local/DataX/target/datax/datax/
-  host: datax01
+  home: ${DATAX_HOME:/opt/hdsp/infra/datax/}
+  host: ${DATAX_HOST:192.168.11.223}
   port: 22
   # 要操作hdfs，用户要有权限
-  username: hadoop
-  password: hadoop
+  username: ${DATAX_USERNAME:hive}
+  password: ${DATAX_PASSWORD:hive}
   basePackagePath: /templates/
-  uploadDicPath: /home/hadoop/datax/
-  localDicPath: src/main/datax/
-  mysql2hive:
+  uploadDicPath: ${DATAX_JSON_FILE_HOME:/opt/hdsp/infra/DATAX_JSON_FILE_HOME/}
+  localDicPath: datax/
+  mysql2Hive:
     whereTemplate: mysql2hive_where.ftl
     querySqlTemplate: mysql2hive_querySql.ftl
-  hive2hive:
-    template: hive2hive.ftl
+  mysql2Mysql:
+    whereTemplate: mysql2mysql_where.ftl
+    querySqlTemplate: mysql2mysql_querySql.ftl
+  mysql2Oracle:
+    whereTemplate: mysql2oracle_where.ftl
+    querySqlTemplate: mysql2oracle_querySql.ftl
+  hive2HiveTemplate: hive2hive.ftl
+  hive2MysqlTemplate: hive2mysql.ftl
+  hive2OracleTemplate: hive2oracle.ftl
+  oracle2Hive:
+    whereTemplate: oracle2hive_where.ftl
+    querySqlTemplate: oracle2hive_querySql.ftl
+  oracle2Oracle:
+    whereTemplate: oracle2oracle_where.ftl
+    querySqlTemplate: oracle2oracle_querySql.ftl
+  oracle2Mysql:
+    whereTemplate: oracle2mysql_where.ftl
+    querySqlTemplate: oracle2mysql_querySql.ftl
 
 azkaban:
-  host: ${AZKABAN_HOST:http://192.168.43.221:8081}
+  host: ${AZKABAN_HOST:http://192.168.11.223:12320}
   username: ${AZKABAN_USERNAME:azkaban}
   password: ${AZKABAN_PASSWORD:azkaban}
-  localDicPath: src/main/azkaban/
-  dataxJob: src/main/resources/dataxJob.job
+  localDicPath: azkaban/
+  dataxJob: dataxJob.job
   dataxProperties: dataxParams.properties

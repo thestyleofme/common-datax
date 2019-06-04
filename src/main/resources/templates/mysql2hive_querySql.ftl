@@ -14,10 +14,11 @@
         "reader": {
           "name": "mysqlreader",
           "parameter": {
-            "username": "${username}",
-            "password": "${password}",
+            "username": "${mysqlreaderUsername}",
+            "password": "${mysqlreaderPassword}",
+            "splitPk": "${mysqlreaderSplitPk!}",
             "connection": [
-              <#list connection as conn>
+              <#list mysqlreaderConnection as conn>
                 {
                   "querySql": [
                     <#list conn.querySql as sql>
@@ -37,12 +38,12 @@
         "writer": {
           "name": "hdfswriter",
           "parameter": {
-            "defaultFS": "${defaultFS}",
-            "fileType": "${fileType}",
-            "path": "${path}",
-            "fileName": "${fileName}",
+            "defaultFS": "${hdfswriterDefaultFS}",
+            "fileType": "${hdfswriterFileType}",
+            "path": "${hdfswriterPath}",
+            "fileName": "${hdfswriterFileName}",
             "column": [
-              <#list hdfsColumn as column>
+              <#list hdfswriterColumn as column>
                 {
                 "name": "${column.name}",
                 "type": "${column.type}"
@@ -50,7 +51,18 @@
               </#list>
             ],
             "writeMode": "${writeMode}",
-            "fieldDelimiter": "${fieldDelimiter}"
+            "fieldDelimiter": "${hdfswriterFieldDelimiter}",
+            "compress": "${hdfswriterCompress!}",
+            "hadoopConfig": {
+              <#if  hdfswriterHadoopConfig??>
+                <#list hdfswriterHadoopConfig as key, value>
+                  "${key}": "${value}"<#if key_has_next>,</#if>
+                </#list>
+              </#if>
+            },
+            "haveKerberos": ${hdfswriterHaveKerberos?then("true","false")},
+            "kerberosKeytabFilePath": "${hdfswriterKerberosKeytabFilePath!}",
+            "kerberosPrincipal": "${hdfswriterKerberosPrincipal!}"
           }
         }
       }

@@ -18,11 +18,11 @@ import jline.internal.Log;
  *
  * @author isacc 2019/05/14 17:11
  */
-public class ZipUtils {
+public class ZipUtil {
 
     private static final int BUFFER_SIZE = 2 * 1024;
 
-    private ZipUtils() {
+    private ZipUtil() {
         throw new IllegalStateException("Utility class");
     }
 

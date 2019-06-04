@@ -278,17 +278,19 @@ public class SftpUtil implements AutoCloseable {
     }
 
     /**
-     * 删除服务器文件
+     * 是否备份，删除服务器文件
      *
      * @param filePath filePath
      * @throws IOException IOException
      */
-    public void remove(String filePath) throws IOException {
+    public void remove(String filePath, Boolean isBak) throws IOException {
         if (Objects.isNull(channelSftp)) {
             throw new IOException(SFTP_SERVER_NOT_LOGIN);
         }
         try {
-            channelSftp.rename(filePath, filePath + ".bak");
+            if (isBak) {
+                channelSftp.rename(filePath, filePath + ".bak");
+            }
             channelSftp.rm(filePath);
         } catch (SftpException e) {
             log.error("文件不存在", e);

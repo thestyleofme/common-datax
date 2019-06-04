@@ -6,7 +6,7 @@ import java.util.Objects;
 import javax.validation.constraints.NotBlank;
 
 import com.isacc.datax.api.dto.ApiResult;
-import com.isacc.datax.api.dto.Hive2HiveDTO;
+import com.isacc.datax.api.dto.Hive2Hive;
 import com.isacc.datax.api.dto.HiveInfoDTO;
 import com.isacc.datax.domain.repository.MysqlRepository;
 import com.isacc.datax.infra.constant.Constants;
@@ -36,21 +36,21 @@ public class MysqlRepositoryImpl implements MysqlRepository {
     }
 
     @Override
-    public ApiResult<Object> checkHiveDbAndTable(Hive2HiveDTO hive2HiveDTO) {
+    public ApiResult<Object> checkHiveDbAndTable(Hive2Hive hive2Hive) {
         // reader
-        @NotBlank final String readerPath = hive2HiveDTO.getReader().getPath();
+        @NotBlank final String readerPath = hive2Hive.getReader().getPath();
         final ApiResult<Object> readerApiResult = this.justCheckHiveDbAndTbl(readerPath);
         if (!readerApiResult.getResult()) {
             return readerApiResult;
         }
         // writer
-        return checkWriterHiveDbAndTable(hive2HiveDTO);
+        return checkWriterHiveDbAndTable(hive2Hive);
     }
 
     @Override
-    public ApiResult<Object> checkWriterHiveDbAndTable(Hive2HiveDTO hive2HiveDTO) {
+    public ApiResult<Object> checkWriterHiveDbAndTable(Hive2Hive hive2Hive) {
         // writer
-        @NotBlank final String writerPath = hive2HiveDTO.getWriter().getPath();
+        @NotBlank final String writerPath = hive2Hive.getWriter().getPath();
         final ApiResult<Object> writerApiResult = this.justCheckHiveDbAndTbl(writerPath);
         if (!writerApiResult.getResult()) {
             // 改变状态，返回再接着操作

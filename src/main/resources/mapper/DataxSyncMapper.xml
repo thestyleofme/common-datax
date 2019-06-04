@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hand.hdsp.datax.infra.mapper.DataxSyncMapper">
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="com.isacc.datax.domain.entity.DataxSync">
+        <result column="SYNC_ID" property="syncId" jdbcType="DECIMAL"/>
+        <result column="SYNC_NAME" property="syncName" jdbcType="VARCHAR"/>
+        <result column="SYNC_DESCRIPTION" property="syncDescription" jdbcType="VARCHAR"/>
+        <result column="SOURCE_DATASOURCE_TYPE" property="sourceDatasourceType" jdbcType="VARCHAR"/>
+        <result column="SOURCE_DATASOURCE_ID" property="sourceDatasourceId" jdbcType="DECIMAL"/>
+        <result column="WRITE_DATASOURCE_TYPE" property="writeDatasourceType" jdbcType="VARCHAR"/>
+        <result column="WRITE_DATASOURCE_ID" property="writeDatasourceId" jdbcType="DECIMAL"/>
+        <result column="JSON_FILE_NAME" property="jsonFileName" jdbcType="VARCHAR"/>
+        <result column="SETTING_INFO" property="settingInfo" jdbcType="BLOB"/>
+        <result column="TENANT_ID" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="OBJECT_VERSION_NUMBER" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="CREATION_DATE" property="creationDate" jdbcType="DATE"/>
+        <result column="CREATED_BY" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="LAST_UPDATED_BY" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="LAST_UPDATE_DATE" property="lastUpdateDate" jdbcType="DATE"/>
+    </resultMap>
+
+</mapper>

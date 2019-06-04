@@ -19,44 +19,49 @@ import lombok.*;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DataxSetting {
 
-	private DataxSpeed speed;
-	private ErrorLimit errorLimit;
+    private DataxSpeed speed;
+    private ErrorLimit errorLimit;
 
-	@Builder
-	@Data
-	@EqualsAndHashCode(callSuper = false)
-	@NoArgsConstructor
-	@AllArgsConstructor
-	@JsonInclude(JsonInclude.Include.NON_NULL)
-	public static class ErrorLimit {
+    @Builder
+    @Data
+    @EqualsAndHashCode(callSuper = false)
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class ErrorLimit {
 
-		/**
-		 * record
-		 */
-		private String record;
-		/**
-		 * percentage
-		 */
-		private String percentage;
-	}
+        /**
+         * record
+         */
+        private String record;
+        /**
+         * percentage
+         */
+        private String percentage;
+    }
 
-	@Builder
-	@Data
-	@EqualsAndHashCode(callSuper = false)
-	@NoArgsConstructor
-	@AllArgsConstructor
-	@JsonInclude(JsonInclude.Include.NON_NULL)
-	public static class DataxSpeed {
-		/**
-		 * record
-		 */
-		private String record;
-		/**
-		 * channel
-		 */
-		private String channel;
+    @Builder
+    @Data
+    @EqualsAndHashCode(callSuper = false)
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class DataxSpeed {
+        /**
+         * record
+         */
+        private String record;
+        /**
+         * channel
+         */
+        private String channel;
+        /**
+         * byte
+         */
+        private String speedByte;
 
-	}
+
+    }
 
 }
 

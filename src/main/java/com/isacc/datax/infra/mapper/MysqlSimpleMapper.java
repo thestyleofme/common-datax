@@ -107,7 +107,7 @@ public interface MysqlSimpleMapper {
      * @return java.util.List<java.util.Map < java.lang.String, java.lang.Object>>
      * @author isacc 2019-04-30 10:48
      */
-    @DS("hivemetadata")
+    @DS("mysql_hivemeta")
     @Select("select DB_ID,`DESC`,DB_LOCATION_URI,`NAME`,OWNER_NAME,OWNER_TYPE from dbs")
     @ResultType(Map.class)
     List<Map<String, Object>> allHiveDatabases();
@@ -119,7 +119,7 @@ public interface MysqlSimpleMapper {
      * @return java.util.Map<java.lang.String, java.lang.Object>
      * @author isacc 2019-05-07 15:54
      */
-    @DS("hivemetadata")
+    @DS("mysql_hivemeta")
     @Select("select DB_ID,`DESC`,DB_LOCATION_URI,`NAME`,OWNER_NAME,OWNER_TYPE from dbs " +
             "where `NAME` = #{hiveDbName}")
     @ResultType(Map.class)
@@ -133,7 +133,7 @@ public interface MysqlSimpleMapper {
      * @return java.util.Map<java.lang.String, java.lang.Object>
      * @author isacc 2019-05-07 16:08
      */
-    @DS("hivemetadata")
+    @DS("mysql_hivemeta")
     @Select("SELECT " +
             "TBL_ID,CREATE_TIME,DB_ID LAST_ACCESS_TIME,OWNER RETENTION,SD_ID,TBL_NAME,TBL_TYPE,VIEW_EXPANDED_TEXT,VIEW_ORIGINAL_TEXT,IS_REWRITE_ENABLED " +
             "FROM " +
@@ -151,7 +151,7 @@ public interface MysqlSimpleMapper {
      * @return java.util.List<java.util.Map < java.lang.String, java.lang.Object>>
      * @author isacc 2019-04-30 10:54
      */
-    @DS("hivemetadata")
+    @DS("mysql_hivemeta")
     @Select("SELECT " +
             "TBL_ID,CREATE_TIME,DB_ID LAST_ACCESS_TIME,OWNER RETENTION,SD_ID,TBL_NAME,TBL_TYPE,VIEW_EXPANDED_TEXT,VIEW_ORIGINAL_TEXT,IS_REWRITE_ENABLED " +
             "FROM " +

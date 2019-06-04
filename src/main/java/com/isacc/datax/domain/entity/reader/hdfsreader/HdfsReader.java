@@ -1,14 +1,13 @@
 package com.isacc.datax.domain.entity.reader.hdfsreader;
 
-import java.util.List;
-import java.util.Map;
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.isacc.datax.domain.entity.reader.BaseReader;
 import lombok.*;
+
+import java.util.List;
+import java.util.Map;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 
 /**
  * <p>

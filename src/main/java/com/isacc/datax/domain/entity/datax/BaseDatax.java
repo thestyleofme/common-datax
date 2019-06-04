@@ -20,9 +20,9 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class BaseDatax {
 
-	/**
-	 * DataX Setting
-	 */
-	private DataxSetting setting;
+    /**
+     * DataX Setting
+     */
+    private DataxSetting setting;
 
 }
