@@ -6,6 +6,8 @@ import javax.validation.constraints.NotNull;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.Version;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
@@ -21,6 +23,7 @@ import lombok.*;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @ApiModel("数据同步表")
+@TableName(value = "datax_sync")
 public class DataxSync {
 
     public static final String FIELD_SYNC_ID = "syncId";
@@ -77,6 +80,7 @@ public class DataxSync {
     private Long tenantId;
     @ApiModelProperty(value = "版本号", required = true)
     @NotNull
+    @Version
     private Long objectVersionNumber;
     @ApiModelProperty(required = true)
     @NotNull

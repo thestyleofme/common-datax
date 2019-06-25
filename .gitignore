@@ -33,4 +33,6 @@ HELP.md
 /src/main/azkaban/
 /src/main/datax/
 /src/test/
-/src/main/resources/application-*.yml
+/src/main/resources/application-dev.yml
+/src/main/resources/application-hdsp.yml
+/src/main/resources/bootstrap-*.yml

@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.isacc</groupId>
     <artifactId>common-datax</artifactId>
-    <version>0.9.0-SNAPSHOT</version>
+    <version>0.10.0-SNAPSHOT</version>
 
     <properties>
         <spring-cloud.version>Greenwich.SR1</spring-cloud.version>

@@ -1,5 +1,5 @@
 # common-datax
-基于阿里DataX开发一个通用导数的微服务，配合web ui使用
+基于阿里DataX开发一个通用导数的微服务，可以开发前台页面，根据reader和writer自动进行数据同步
 
 ---
 
@@ -15,8 +15,6 @@
 - **自动python执行job**
 - **集成Azkaban进行调度管理**
 
-可以开发前台页面，根据reader和writer去自动进行数据同步
-
 例如：mysql到hive
 
 选择mysql需要同步的表、字段等信息，输入导入到hive的库表分区等信息，不需提前在hive进行创库创表创分区，自动根据要导的mysql表以及字段类型进行创建hive库表分区，然后利用freemarker去生成json文件，使用Azkaban进行调度执行，自动创建项目、上传zip、执行流一系列操作，可在Azkaban页面进行查看。当然也提供了可直接远程python执行。
@@ -28,17 +26,53 @@
 - 一个restful接口，可以实现所有的同步
 
 ### todo:
-- 主要是hive，mysql之间的导数，支持分区，还有csv导入等
 - 创表记录导数的历史
-- 配置文件属性加密，配置使用环境变量形式
 - json文件下载
 - Azkaban定时调度等
-- swagger
 - 数据源，mysql、hive的数据源维护，下次要导数时，不用传那么多服务器信息
 - groovy脚本
 ---
 
-## 示例
+## 说明
+
+#### 修改配置文件application-template.yml
+
+1. 数据源修改，根据自己项目情况进行调整
+
+> 不要修改数据源名称，只需修改为自己的username、password、url即可
+ datax的信息修改
+```
+# 这里只要是路径，后面都加上/
+datax:
+  home: ${DATAX_HOME:/usr/local/DataX/target/datax/datax/}
+  host: ${DATAX_HOST:datax01}
+  port: 22
+  # 要操作hdfs，用户要有权限
+  username: ${DATAX_USERNAME:hadoop}
+  password: ${DATAX_PASSWORD:hadoop}
+  uploadDicPath: ${DATAX_JSON_FILE_HOME:/home/hadoop/datax/}
+```
+3. azkaban的url, 也可以不用azkaban，本项目默认使用azkaban进行调度
+```
+azkaban:
+  host: ${AZKABAN_HOST:http://192.168.43.221:8081}
+  username: ${AZKABAN_USERNAME:azkaban}
+  password: ${AZKABAN_PASSWORD:azkaban}
+```
+#### 指定启动配置
+
+> 可以重命名application-template.yml为application-dev.yml，application.yml指定生效的配置文件
+
+```
+spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+```
+#### swagger地址
+> http://localhost:10024/swagger-ui.html
+---
+
+## 使用示例
 
 > 这里的mysql2Hive表明是mysql同步到hive，可以更换为mysql2Mysql、hive2Hive、oracle2Hive等，驼峰命名。
 
@@ -51,13 +85,13 @@
 
 ```
 {
-	"syncName": "mysql2hive_test_0604_where",
-	"syncDescription": "mysql2hive_test_0604_where",
+	"syncName": "mysql2hive_test_0625_where",
+	"syncDescription": "mysql2hive_test_0625_where",
 	"sourceDatasourceType": "mysql",
 	"sourceDatasourceId": "1",
 	"writeDatasourceType": "hadoop_hive_2",
 	"writeDatasourceId": "1",
-	"jsonFileName": "mysql2hive_test_0604_where.json",
+	"jsonFileName": "mysql2hive_test_0625_where.json",
 	"mysql2Hive": {
 		"setting": {
 			"speed": {
@@ -69,9 +103,9 @@
 			}
 		},
 		"reader": {
-			"username": "root",
-			"password": "root",
 			"splitPk": "",
+			"username": "root",
+            "password": "root",
 			"column": [
 				"id",
 				"username"
@@ -81,15 +115,15 @@
 					"userinfo"
 				],
 				"jdbcUrl": [
-					"jdbc:mysql://192.168.11.227:3306/hdsp_datax?useUnicode=true&characterEncoding=utf-8&useSSL=false"
+					"jdbc:mysql://hadoop04:3306/common_datax?useUnicode=true&characterEncoding=utf-8&useSSL=false"
 				]
 			}],
 			"where": "2 > 1"
 		},
 		"writer": {
-            "defaultFS": "hdfs://hdmp01.novalocal:8020",
+            "defaultFS": "hdfs://hadoop04:9000",
             "fileType": "text",
-            "path": "/warehouse/tablespace/managed/hive/hdsp_test.db/userinfo",
+            "path": "/user/hive/warehouse/test.db/userinfo",
             "fileName": "userinfo",
             "column": [
                 {

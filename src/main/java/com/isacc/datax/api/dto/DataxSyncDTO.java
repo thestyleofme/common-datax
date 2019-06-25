@@ -2,6 +2,7 @@ package com.isacc.datax.api.dto;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import lombok.*;
 
@@ -16,6 +17,7 @@ import lombok.*;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @ApiModel("数据同步表")
+@JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class DataxSyncDTO {
 
     public static final String FIELD_SYNC_ID = "syncId";

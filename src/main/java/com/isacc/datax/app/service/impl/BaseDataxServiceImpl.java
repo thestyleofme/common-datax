@@ -71,7 +71,6 @@ public class BaseDataxServiceImpl implements BaseDataxService {
         Properties properties = new Properties();
         try (FileOutputStream fos = new FileOutputStream(dataxParamProperties)) {
             properties.setProperty("DATAX_HOME", dataxProperties.getHome());
-            properties.setProperty("DATAX_UPLOAD_DIC", dataxProperties.getUploadDicPath());
             properties.setProperty("DATAX_JSON_FILE_NAME", jsonFileName);
             properties.store(fos, "datax properties");
         } catch (IOException e) {
@@ -84,6 +83,7 @@ public class BaseDataxServiceImpl implements BaseDataxService {
         files.add(propertiesFile);
         File generateFile = this.generateNewFile(azkabanProperties.getDataxJob(), new File(azkabanProperties.getLocalDicPath() + azkabanProperties.getDataxJob()));
         files.add(generateFile);
+        files.add(FileUtils.getFile(dataxProperties.getLocalDicPath(), jsonFileName));
         String zipName = jsonFileName.substring(0, jsonFileName.indexOf('.'));
         String zipPath = azkabanProperties.getLocalDicPath() + zipName + ".zip";
         try (FileOutputStream zipOut = new FileOutputStream(zipPath)) {

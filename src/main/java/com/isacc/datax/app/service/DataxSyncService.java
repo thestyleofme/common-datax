@@ -27,4 +27,21 @@ public interface DataxSyncService extends BaseDataxService {
      */
     String generateDataxCommand();
 
+    /**
+     * 删除datax同步任务
+     *
+     * @param dataxSyncDTO DataxSyncDTO
+     * @return com.isacc.datax.api.dto.ApiResult<java.lang.Object>
+     * @author isacc 2019/6/25 16:30
+     */
+    ApiResult<Object> deleteDataxSync(DataxSyncDTO dataxSyncDTO);
+
+    /**
+     * 校验datax同步任务名称以及json文件名称是否重复
+     *
+     * @param dataxSyncDTO DataxSyncDTO
+     * @return com.isacc.datax.api.dto.ApiResult<java.lang.Object>
+     * @author isacc 2019/6/25 16:33
+     */
+    ApiResult<Object> checkSyncNameAndJsonFileName(DataxSyncDTO dataxSyncDTO);
 }

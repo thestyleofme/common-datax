@@ -1,0 +1,142 @@
+server:
+  port: 10024
+eureka:
+  instance:
+    # 以IP注册到注册中心
+    preferIpAddress: ${EUREKA_INSTANCE_PREFER_IP_ADDRESS:true}
+    leaseRenewalIntervalInSeconds: 10
+    leaseExpirationDurationInSeconds: 30
+    # 服务的一些元数据信息
+    metadata-map:
+      VERSION: 0.1.0
+  client:
+    serviceUrl:
+      # 注册中心地址
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://ip:port/eureka}
+    registryFetchIntervalSeconds: 10
+    disable-delta: true
+    enabled: false # 测试时不启动eureka
+spring:
+  application:
+    name: ${SPRING_APPLICATION_NAME:common-datax}
+  cloud:
+    config:
+      fail-fast: false
+      # 是否启用配置中心
+      enabled: ${SPRING_CLOUD_CONFIG_ENABLED:false}
+      # 配置中心地址
+      uri: ${SPRING_CLOUD_CONFIG_URI:http://ip:port}
+      retry:
+        # 最大重试次数
+        maxAttempts: 6
+        multiplier: 1.1
+        # 重试间隔时间
+        maxInterval: 2000
+      # 标签
+      label: ${SPRING_CLOUD_CONFIG_LABEL:}
+  resources:
+    chain:
+      cache: false # 开发时使用，resource文件夹下的资源不进行缓存处理，即每次都需要去加载
+  datasource:
+    dynamic:
+      primary: mysql
+      datasource:
+        hive:
+          username: xxxx # 注意用户名，使用hive用户没操作hdfs的权限
+          password: xxxx
+          driver-class-name: org.apache.hive.jdbc.HiveDriver
+          url: jdbc:hive2://ip:port/db
+        mysql_hivemeta:
+          username: xxxx
+          password: xxxx
+          driver-class-name: com.mysql.jdbc.Driver
+          url: jdbc:mysql://ip:port/db?useUnicode=true&characterEncoding=utf-8&useSSL=false
+        mysql_1:
+          username: xxxx
+          password: xxxx
+          driver-class-name: com.mysql.jdbc.Driver
+          url: jdbc:mysql://ip:port/db?useUnicode=true&characterEncoding=utf-8&useSSL=false
+        mysql_2:
+          username: xxxx
+          password: xxxx
+          driver-class-name: com.mysql.jdbc.Driver
+          url: jdbc:mysql://ip:port/db?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      minimum-idle: 10
+      maximum-pool-size: 15
+      auto-commit: true
+      idle-timeout: 30000
+      pool-name: ExpendHikariCP
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
+
+  redis:
+    host: ${SPRING_REDIS_HOST:localhost}
+    port: ${SPRING_REDIS_PORT:6379}
+    database: ${SPRING_REDIS_DATABASE:15}
+    password: ${SPRING_REDIS_PASSWORD:}
+    jedis:
+      pool:
+        # 资源池中最大连接数
+        # 默认8，-1表示无限制；可根据服务并发redis情况及服务端的支持上限调整
+        max-active: 8
+        # 资源池运行最大空闲的连接数
+        # 默认8，-1表示无限制；可根据服务并发redis情况及服务端的支持上限调整，一般建议和max-active保持一致，避免资源伸缩带来的开销
+        max-idle: 50
+        # 当资源池连接用尽后，调用者的最大等待时间(单位为毫秒)
+        # 默认 -1 表示永不超时，设置5秒
+        max-wait: 5000
+
+logging:
+  level:
+    com.isacc.datax: debug
+    com.baomidou.dynamic: debug
+  file: logs/common-datax.log
+
+mybatis:
+  mapperLocations: classpath*:/mapper/*.xml
+  configuration:
+    mapUnderscoreToCamelCase: true
+
+# 这里只要是路径，后面都加上/
+datax:
+  home: ${DATAX_HOME:/path/}
+  host: ${DATAX_HOST:ip}
+  port: 22
+  # 要操作hdfs，用户要有权限
+  username: ${DATAX_USERNAME:hive}
+  password: ${DATAX_PASSWORD:hive}
+  basePackagePath: /templates/
+  uploadDicPath: ${DATAX_JSON_FILE_HOME:/path/}
+  localDicPath: datax/
+  mysql2Hive:
+    whereTemplate: mysql2hive_where.ftl
+    querySqlTemplate: mysql2hive_querySql.ftl
+  mysql2Mysql:
+    whereTemplate: mysql2mysql_where.ftl
+    querySqlTemplate: mysql2mysql_querySql.ftl
+  mysql2Oracle:
+    whereTemplate: mysql2oracle_where.ftl
+    querySqlTemplate: mysql2oracle_querySql.ftl
+  hive2HiveTemplate: hive2hive.ftl
+  hive2MysqlTemplate: hive2mysql.ftl
+  hive2OracleTemplate: hive2oracle.ftl
+  oracle2Hive:
+    whereTemplate: oracle2hive_where.ftl
+    querySqlTemplate: oracle2hive_querySql.ftl
+  oracle2Oracle:
+    whereTemplate: oracle2oracle_where.ftl
+    querySqlTemplate: oracle2oracle_querySql.ftl
+  oracle2Mysql:
+    whereTemplate: oracle2mysql_where.ftl
+    querySqlTemplate: oracle2mysql_querySql.ftl
+
+azkaban:
+  host: ${AZKABAN_HOST:http://ip:port}
+  username: ${AZKABAN_USERNAME:azkaban}
+  password: ${AZKABAN_PASSWORD:azkaban}
+  localDicPath: azkaban/
+  dataxJob: dataxJob.job
+  dataxProperties: dataxParams.properties
