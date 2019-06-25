@@ -7,25 +7,25 @@ spring:
       primary: mysql
       datasource:
         hive:
-          username: hive # 注意用户名，使用hive用户没操作hdfs的权限
-          password: hive
+          username: xxxx # 注意用户名，使用hive用户没操作hdfs的权限
+          password: xxxx
           driver-class-name: org.apache.hive.jdbc.HiveDriver
-          url: jdbc:hive2://192.168.11.223:10000/hdsp_test
+          url: jdbc:hive2://ip:port/db
         mysql_hivemeta:
-          username: root
-          password: root
+          username: xxxx
+          password: xxxx
           driver-class-name: com.mysql.jdbc.Driver
-          url: jdbc:mysql://192.168.11.227:3306/hive_3_1_0?useUnicode=true&characterEncoding=utf-8&useSSL=false
+          url: jdbc:mysql://ip:port/db?useUnicode=true&characterEncoding=utf-8&useSSL=false
         mysql_1:
-          username: root
-          password: root
+          username: xxxx
+          password: xxxx
           driver-class-name: com.mysql.jdbc.Driver
-          url: jdbc:mysql://192.168.11.227:3306/hdsp_datax?useUnicode=true&characterEncoding=utf-8&useSSL=false
+          url: jdbc:mysql://ip:port/db?useUnicode=true&characterEncoding=utf-8&useSSL=false
         mysql_2:
-          username: root
-          password: tse@9527
+          username: xxxx
+          password: xxxx
           driver-class-name: com.mysql.jdbc.Driver
-          url: jdbc:mysql://localhost:3306/hdsp_datax?useUnicode=true&characterEncoding=utf-8&useSSL=false
+          url: jdbc:mysql://ip:port/db?useUnicode=true&characterEncoding=utf-8&useSSL=false
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
       minimum-idle: 10
@@ -38,9 +38,10 @@ spring:
       connection-test-query: SELECT 1
 
   redis:
-    host: localhost
-    port: 6379
-    database: 15
+    host: ${SPRING_REDIS_HOST:localhost}
+    port: ${SPRING_REDIS_PORT:6379}
+    database: ${SPRING_REDIS_DATABASE:15}
+    password: ${SPRING_REDIS_PASSWORD:}
     jedis:
       pool:
         # 资源池中最大连接数
@@ -57,7 +58,7 @@ logging:
   level:
     com.isacc.datax: debug
     com.baomidou.dynamic: debug
-  file: logs/springboot_mybatis.log
+  file: logs/common-datax.log
 
 mybatis:
   mapperLocations: classpath*:/mapper/*.xml
@@ -66,14 +67,14 @@ mybatis:
 
 # 这里只要是路径，后面都加上/
 datax:
-  home: ${DATAX_HOME:/opt/hdsp/infra/datax/}
-  host: ${DATAX_HOST:192.168.11.223}
+  home: ${DATAX_HOME:/path/}
+  host: ${DATAX_HOST:ip}
   port: 22
   # 要操作hdfs，用户要有权限
   username: ${DATAX_USERNAME:hive}
   password: ${DATAX_PASSWORD:hive}
   basePackagePath: /templates/
-  uploadDicPath: ${DATAX_JSON_FILE_HOME:/opt/hdsp/infra/DATAX_JSON_FILE_HOME/}
+  uploadDicPath: ${DATAX_JSON_FILE_HOME:/path/}
   localDicPath: datax/
   mysql2Hive:
     whereTemplate: mysql2hive_where.ftl
@@ -98,7 +99,7 @@ datax:
     querySqlTemplate: oracle2mysql_querySql.ftl
 
 azkaban:
-  host: ${AZKABAN_HOST:http://192.168.11.223:12320}
+  host: ${AZKABAN_HOST:http://ip:port}
   username: ${AZKABAN_USERNAME:azkaban}
   password: ${AZKABAN_PASSWORD:azkaban}
   localDicPath: azkaban/
