@@ -16,8 +16,8 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  */
 @SpringBootApplication(exclude = {FreeMarkerAutoConfiguration.class})
 @MapperScan("com.isacc.datax.infra.mapper")
-@EnableDiscoveryClient
-@EnableFeignClients
+//@EnableDiscoveryClient
+//@EnableFeignClients
 public class DataxApplication {
 
     public static void main(String[] args) {
