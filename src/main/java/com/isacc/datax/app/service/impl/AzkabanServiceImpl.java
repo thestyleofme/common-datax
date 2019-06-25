@@ -53,19 +53,19 @@ public class AzkabanServiceImpl extends BaseDataxServiceImpl implements AzkabanS
         if (!loginResult.getResult()) {
             return loginResult;
         }
-        String sessionID = String.valueOf(loginResult.getContent());
+        String sessionId = String.valueOf(loginResult.getContent());
         // 创建项目
-        ApiResult<Object> createProjectResult = this.createProject(sessionID, projectName, description);
+        ApiResult<Object> createProjectResult = this.createProject(sessionId, projectName, description);
         if (!createProjectResult.getResult()) {
             return createProjectResult;
         }
         // 上传zip
-        ApiResult<Object> uploadZipResult = this.uploadZip(sessionID, projectName, zipPath);
+        ApiResult<Object> uploadZipResult = this.uploadZip(sessionId, projectName, zipPath);
         if (!uploadZipResult.getResult()) {
             return uploadZipResult;
         }
         // 获取流
-        ApiResult<Object> fetchFlowsResult = this.fetchFlows(sessionID, projectName);
+        ApiResult<Object> fetchFlowsResult = this.fetchFlows(sessionId, projectName);
         if (!fetchFlowsResult.getResult()) {
             return fetchFlowsResult;
         }
@@ -80,7 +80,7 @@ public class AzkabanServiceImpl extends BaseDataxServiceImpl implements AzkabanS
         List<Object> errorList = new ArrayList<>();
         List<Object> execList = new ArrayList<>();
         for (String flow : flowList) {
-            executeFlowResult = this.executeFlow(sessionID, projectName, flow);
+            executeFlowResult = this.executeFlow(sessionId, projectName, flow);
             if (!executeFlowResult.getResult()) {
                 errorList.add(executeFlowResult.getContent());
                 break;
@@ -131,9 +131,9 @@ public class AzkabanServiceImpl extends BaseDataxServiceImpl implements AzkabanS
         return successApiResult;
     }
 
-    private ApiResult<Object> createProject(String sessionID, String name, String description) {
+    private ApiResult<Object> createProject(String sessionId, String name, String description) {
         LinkedMultiValueMap<String, String> linkedMultiValueMap = new LinkedMultiValueMap<>();
-        linkedMultiValueMap.add(SESSION_ID, sessionID);
+        linkedMultiValueMap.add(SESSION_ID, sessionId);
         linkedMultiValueMap.add("action", "create");
         linkedMultiValueMap.add("name", name);
         linkedMultiValueMap.add("description", description);
@@ -142,10 +142,10 @@ public class AzkabanServiceImpl extends BaseDataxServiceImpl implements AzkabanS
         return checkRequestResult(result);
     }
 
-    private ApiResult<Object> uploadZip(String sessionID, String name, String zipPath) {
+    private ApiResult<Object> uploadZip(String sessionId, String name, String zipPath) {
         FileSystemResource fileAsResource = new FileSystemResource(zipPath);
         LinkedMultiValueMap<String, Object> linkedMultiValueMap = new LinkedMultiValueMap<>();
-        linkedMultiValueMap.add(SESSION_ID, sessionID);
+        linkedMultiValueMap.add(SESSION_ID, sessionId);
         linkedMultiValueMap.add("ajax", "upload");
         linkedMultiValueMap.add("project", name);
         linkedMultiValueMap.add("file", fileAsResource);
@@ -153,18 +153,18 @@ public class AzkabanServiceImpl extends BaseDataxServiceImpl implements AzkabanS
         return checkRequestResult(result);
     }
 
-    private ApiResult<Object> fetchFlows(String sessionID, String name) {
+    private ApiResult<Object> fetchFlows(String sessionId, String name) {
         String result = cusRestTemplate.getForObject(String.format("%s/manager?session.id=%s&ajax=fetchprojectflows&project=%s",
                 azkabanProperties.getHost(),
-                sessionID,
+                sessionId,
                 name), String.class);
         return this.checkRequestResult(result);
     }
 
-    private ApiResult<Object> executeFlow(String sessionID, String name, String flow) {
+    private ApiResult<Object> executeFlow(String sessionId, String name, String flow) {
         String result = cusRestTemplate.getForObject(String.format("%s/executor?session.id=%s&ajax=executeFlow&project=%s&flow=%s",
                 azkabanProperties.getHost(),
-                sessionID,
+                sessionId,
                 name,
                 flow), String.class);
         return checkRequestResult(result);
