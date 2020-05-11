@@ -25,7 +25,7 @@
 
 ### 设计思路（跟策略模式对比即目前的项目） 后续有时间我推一下新版的设计实现：
 - 摒弃freemarker，DTO直接使用Map映射，Map里传reader、writer、setting的信息
-- 定义WriterService/ReaderService接口，该接口方法处理reader/writer部门的json信息
+- 定义WriterService/ReaderService接口，该接口方法处理reader/writer部分的json信息
 - 一个reader/一个writer对应一个类进行处理（使用反射），专门生成reader/writer部分的json，最后加上setting部分生成成一个完整DataX的Job类
 
 伪代码
