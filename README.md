@@ -1,6 +1,8 @@
 # common-datax
 基于阿里DataX开发一个通用导数的微服务，可以开发前台页面，根据reader和writer自动进行数据同步
 
+本项目只限于同步数据源量很少的时候使用，若是数据源很多的情况，请参考下面的设计思路
+
 ---
 
 由于阿里DataX有一些缺点：
@@ -18,6 +20,75 @@
 例如：mysql到hive
 
 选择mysql需要同步的表、字段等信息，输入导入到hive的库表分区等信息，不需提前在hive进行创库创表创分区，自动根据要导的mysql表以及字段类型进行创建hive库表分区，然后利用freemarker去生成json文件，使用Azkaban进行调度执行，自动创建项目、上传zip、执行流一系列操作，可在Azkaban页面进行查看。当然也提供了可直接远程python执行。
+
+上述设计使用策略实现，只有几个数据源之间相互同步还好，如hive/mysql/oracle三个，策略模式还是不错的，但若是数据源很多的时候，策略模式不是很方便，写的类也成幂次方增加，为了优化开发易维护，只有放弃策略模式，用以下方式，代码我就不推了，有点懒。
+
+### 设计思路（跟策略模式对比即目前的项目） 后续有时间我推一下新版的设计实现：
+- 摒弃freemarker，DTO直接使用Map映射，Map里传reader、writer、setting的信息
+- 定义WriterService/ReaderService接口，该接口方法处理reader/writer部门的json信息
+- 一个reader/一个writer对应一个类进行处理（使用反射），专门生成reader/writer部分的json，最后加上setting部分生成成一个完整DataX的Job类
+
+伪代码
+```
+DataxSyncDTO
+/**
+* 同步信息，包含以下三个key
+* @see BaseReader 子类
+* @see BaseWriter 子类
+* @see Job.Setting 
+*/
+private Map<String, Object> sync;
+
+ReaderService/WriterService
+如可以实现MysqlReaderService/MysqlWriterService
+public interface ReaderService<T extends BaseReader> {
+     /**
+     * 解析reader
+     *
+     * @param tenantId     租户id
+     * @param datasourceId 数据源ID
+     * @param reader       json
+     * @return json
+     */
+    String parseReader(Long tenantId, Long datasourceId, String reader);
+}
+
+根据名称使用反射找到具体的实现类，序列化出具体的reader/writer部分json
+
+最后组合成datax的json
+
+最终的datax json映射类
+public class Job {
+    private Setting setting;
+    private List<Content> content;
+    public static class Setting {
+        private Speed speed;
+        private ErrorLimit errorLimit;
+    }
+    public static class Speed {
+        private String record; 
+        private String channel;
+        private String speedByte;
+    }
+    public static class ErrorLimit {
+        private String record;
+        private String percentage;
+    }
+    public static class Content {
+        private Reader reader;
+        private Writer writer;
+    }
+    public static class Reader {
+        private String name;
+        private Object parameter;
+    }
+    public static class Writer {
+        private String name;
+        private Object parameter;
+    }
+}
+```
+
 
 ### done:
 - oracle、mysql、hive两两互相同步
