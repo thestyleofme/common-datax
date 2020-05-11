@@ -89,7 +89,6 @@ public class Job {
 }
 ```
 
-
 ### done:
 - oracle、mysql、hive两两互相同步
 - 本地csv文件导入到hive，支持分区
@@ -225,3 +224,5 @@ spring:
 "path": "/user/hive/warehouse/test.db/userinfo_dts/dt1=A1/dt2=B2"
 ```
 > 这里会在hive里自动创建userinfo_dts分区表，有两个分区字段，然后会将数据导入到这里的dt1=A1,dt2=B2分区下
+
+#### 联系 qq: 283273332@qq.com
