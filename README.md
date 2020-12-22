@@ -1,9 +1,19 @@
+# DEPRECATED!!!不在维护!!!
+
+已优化重构并迁移至datax-admin
+
+[datax-admin传送门](https://github.com/thestyleofme/datax-admin.git)
+
+---
+
 # common-datax
 基于阿里DataX开发一个通用导数的微服务，可以开发前台页面，根据reader和writer自动进行数据同步
 
 本项目只限于同步数据源量很少的时候使用，若是数据源很多的情况，请参考下面的设计思路
 
+
 ---
+
 
 由于阿里DataX有一些缺点：
 - **不够自动化**
@@ -224,5 +234,3 @@ spring:
 "path": "/user/hive/warehouse/test.db/userinfo_dts/dt1=A1/dt2=B2"
 ```
 > 这里会在hive里自动创建userinfo_dts分区表，有两个分区字段，然后会将数据导入到这里的dt1=A1,dt2=B2分区下
-
-#### 联系 qq: 283273332@qq.com
