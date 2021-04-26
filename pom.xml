@@ -25,7 +25,7 @@
         <oracle.version>12.1.0.2</oracle.version>
         <sqlserver.version>4.0</sqlserver.version>
         <mybatis.spring.starter.version>2.0.1</mybatis.spring.starter.version>
-        <commons.io.version>2.6</commons.io.version>
+        <commons.io.version>2.7</commons.io.version>
         <commons.fileupload.version>1.4</commons.fileupload.version>
         <swagger2.ui>2.9.2</swagger2.ui>
         <mybatis.plus.version>3.1.1</mybatis.plus.version>
